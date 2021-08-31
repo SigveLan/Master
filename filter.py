@@ -3,10 +3,9 @@ import pandas as pd
 import time
 from operator import itemgetter
 
-count = 0
 def read_exons_to_df(file):
 
-    # Reading to dictionary then convert to dataframe is very fast.
+    # Reading to dictionary then convert to dataframe is very fast, which is why it is done here
     dictionary = {}
     ind = 0
 
@@ -32,8 +31,6 @@ def read_exons_to_df(file):
                 pos = list(map(int, seq_record_attributes[i].split(';')))
                 if len(pos) > 1:
                     print(seq_record_attributes)
-                    global count
-                    count += 1
                     differences = [abs(j - seq_record_attributes[i-4]) for j in pos]
                     seq_record_attributes[i] = pos[min(enumerate(differences), key=itemgetter(1))[0]]
 
@@ -57,6 +54,7 @@ def create_df(dictionary):
                                                                      "phase_end", "coding_start", "coding_end",
                                                                      "strand"])
     return df
+
 
 def read_SNPs_to_df(file):
     return pd.read_table(file, index_col=0)
@@ -132,7 +130,7 @@ SNP_results = [[], []]
 for index, SNP in SNPs.iterrows():
 
     if len(SNP['Variant alleles']) != 3:
-        #SNPs.drop(index)
+        #Skips non-SNP mutations
         continue
 
     location = check_SNP_location(SNP['Chromosome/scaffold position start (bp)'])
@@ -158,5 +156,5 @@ for name, result in zip(result_file_names, SNP_results):
 end_time2 = time.time()
 print('Mapping execution time = %.6f seconds' % (end_time2-start_time2))
 print('Number of viable SNPs: ' + str(num_SNPs))
-print(count)
+
 
