@@ -3,8 +3,10 @@ import pandas as pd
 from genetic_code import DNA_Codons
 from operator import itemgetter
 
+
 def read_exons_to_df(file):
 
+    # Same as the one from filter, but can probably be trimmed down
     # Reading to dictionary then convert to dataframe is very fast.
     dictionary = {}
     ind = 0
@@ -25,7 +27,8 @@ def read_exons_to_df(file):
             else:
                 seq_record_attributes[i] = 0
 
-        # There can be more than one coding start/stop in a given exon. This picks the closest to the edge of the exon.
+        # Although rare, there can be more than one coding start/stop in a given exon.
+        # This picks the closest to the edge of the exon.
         for i in [11, 12]:
             if seq_record_attributes[i] != '':
                 pos = list(map(int, seq_record_attributes[i].split(';')))
@@ -44,6 +47,7 @@ def read_exons_to_df(file):
 
     return create_df(dictionary)
 
+
 def create_df(dictionary):
 
     df = pd.DataFrame.from_dict(dictionary, orient='index', columns=["gene_id", "gene_name", "chrom", "gene_start",
@@ -53,8 +57,10 @@ def create_df(dictionary):
                                                                      "strand", "sequence"])
     return df
 
+
 def get_exon(exon_id):
     return exons[(exons['exon_id'] == exon_id)]
+
 
 def translate_DNA(seq):
     protein_sequence = []
@@ -63,8 +69,10 @@ def translate_DNA(seq):
 
     return ''.join(protein_sequence)
 
+
 def translate_codon(codons):
     return [DNA_Codons[codons[0]], DNA_Codons[codons[1]]]
+
 
 def compare_and_score_AA(AA):
 
@@ -72,8 +80,10 @@ def compare_and_score_AA(AA):
         return 0
     return 1
 
+
 def identify_codon(pos, start_phase, seq, var):
     var = var.split('/')
+    # Only checks for SNPs that are in codons not split between exons.
     if (1 < pos) & (pos < len(seq) - 2):
 
         if start_phase != '':
@@ -85,6 +95,7 @@ def identify_codon(pos, start_phase, seq, var):
         return [seq[pos - pos % 3:pos - pos % 3 + 3], var_seq[pos - pos % 3:pos - pos % 3 + 3]]
 
     return []
+
 
 model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
 exons = read_exons_to_df(model_file)
@@ -106,7 +117,6 @@ for index, data in SNP_data.iterrows():
         var_AA.append('')
         change_score.append('')
         continue
-
 
     translate_result = translate_codon(codons)
     ancestral_AA.append(translate_result[0])

@@ -114,6 +114,7 @@ def check_SNP_location(SNP_pos):
 model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
 SNPs_file = 'C:/Users/Sigve/Genome_Data/SNP_data/biomart_chrom_1_test_1.tsv'
 
+# Timer for reading in moel file, not necessary for function
 start_time = time.time()
 exons = read_exons_to_df(model_file)
 end_time = time.time()
@@ -124,13 +125,13 @@ SNPs = read_SNPs_to_df(SNPs_file).drop_duplicates()
 start_time2 = time.time()
 num_SNPs = 0
 
-result_file_names = ['SNPs_non_coding', 'SNPs_coding']
+result_files_names = ['SNPs_non_coding', 'SNPs_coding']
 SNP_results = [[], []]
 
 for index, SNP in SNPs.iterrows():
 
     if len(SNP['Variant alleles']) != 3:
-        #Skips non-SNP mutations
+        # Skips non-SNP variations
         continue
 
     location = check_SNP_location(SNP['Chromosome/scaffold position start (bp)'])
@@ -145,8 +146,8 @@ for index, SNP in SNPs.iterrows():
 
     num_SNPs += 1
 
-# Write to file.
-for name, result in zip(result_file_names, SNP_results):
+# Write results to file.
+for name, result in zip(result_files_names, SNP_results):
     df = pd.DataFrame(result, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
                                        'gene_id', 'transcript_ids',
                                        'exon_id', 'location'])
