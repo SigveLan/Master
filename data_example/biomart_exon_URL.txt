@@ -1,6 +1,6 @@
 Exon sequences - All chromosomes - Protein coding genes only
 
-URL might not produce identical results anymore, but attributes can be easily added to the query.
+URL might not produce identical results anymore, but attributes can easily be added to the query to match the datafile.
 
 http://www.ensembl.org/biomart/martview/1fd1d9bddf185b5812eea0325609f1c1?VIRTUALSCHEMANAME=default&ATTRIBUTES=hsapiens_gene_ensembl.default.sequences.gene_exon|hsapiens_gene_ensembl.default.sequences.ensembl_gene_id_version|hsapiens_gene_ensembl.default.sequences.external_gene_name|hsapiens_gene_ensembl.default.sequences.chromosome_name|hsapiens_gene_ensembl.default.sequences.start_position|hsapiens_gene_ensembl.default.sequences.end_position|hsapiens_gene_ensembl.default.sequences.ensembl_transcript_id_version|hsapiens_gene_ensembl.default.sequences.ensembl_exon_id|hsapiens_gene_ensembl.default.sequences.exon_chrom_start|hsapiens_gene_ensembl.default.sequences.exon_chrom_end|hsapiens_gene_ensembl.default.sequences.phase|hsapiens_gene_ensembl.default.sequences.end_phase|hsapiens_gene_ensembl.default.sequences.genomic_coding_start|hsapiens_gene_ensembl.default.sequences.genomic_coding_end|hsapiens_gene_ensembl.default.sequences.strand&FILTERS=hsapiens_gene_ensembl.default.filters.transcript_biotype."protein_coding"|hsapiens_gene_ensembl.default.filters.biotype."protein_coding"|hsapiens_gene_ensembl.default.filters.chromosome_name."1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y"&VISIBLEPANEL=resultspanel
 

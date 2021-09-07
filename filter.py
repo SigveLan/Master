@@ -3,6 +3,10 @@ import pandas as pd
 import time
 from operator import itemgetter
 
+# This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
+# Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons.
+
+
 def read_exons_to_df(file):
 
     # Reading to dictionary then convert to dataframe is very fast, which is why it is done here
@@ -12,7 +16,7 @@ def read_exons_to_df(file):
     for seq_record in SeqIO.parse(open(file, mode='r'), 'fasta'):
 
         seq_record_attributes = seq_record.description.split("|")
-        seq_record_attributes[5] = seq_record_attributes[5].split(':')
+        seq_record_attributes[5] = seq_record_attributes[5].split(';')
 
         # These are always present as numbers.
         for i in [3, 4, 7, 8, 13]:
