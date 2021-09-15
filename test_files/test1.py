@@ -89,3 +89,20 @@ print(identify_codon(8, '', 'ATGATTATCCTG', 'A/G'))
 print(identify_codon(7, '1', 'TGATTATCCTG', 'A/G'))
 print(identify_codon(6, '2',  'GATTATCCTG', 'A/G'))
 
+'''
+exon = get_exon_by_id(data['exon_id'])
+codons = identify_codon(data['chrom_pos'] - exon.iloc[0, 7], exon.iloc[0, 9], exon.iloc[0]['sequence'],
+                        data['variant_alleles'])
+
+if not codons:
+    ancestral_AA.append('')
+    var_AA.append('')
+    change_score.append('')
+    continue
+
+translate_result = translate_codon(codons)
+ancestral_AA.append(translate_result[0])
+var_AA.append(translate_result[1])
+change_score.append(compare_and_score_AA(translate_result))
+
+'''

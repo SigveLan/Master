@@ -1,9 +1,11 @@
 from Bio import SeqIO
 import pandas as pd
+import numpy as np
 from genetic_code import DNA_Codons
 import time
 from operator import itemgetter
 import itertools
+import ast
 
 # This script takes in the SNPs in coding region results from 'filter.py' and checks if there is a change in AA sequence
 
@@ -62,10 +64,6 @@ def create_df(dictionary):
     return df
 
 
-def transcript_input_to_list(transcript_str):
-    return transcript_str[2:-2].split(';')
-
-
 def get_exon_by_id(exon_id):
     return exons[(exons['exon_id'] == exon_id)]
 
@@ -84,10 +82,6 @@ def translate_DNA(seq):
         protein_sequence.append(DNA_Codons[seq[i:i + 3]])
 
     return ''.join(protein_sequence)
-
-
-def translate_codon(codons):
-    return [DNA_Codons[codons[0]], DNA_Codons[codons[1]]]
 
 
 def compare_and_score_AA(AA):
@@ -120,43 +114,109 @@ def assemble_transcripts(gene_data):
     data_dict = {}
     ind = 0
 
+    if globals()['current_strand'] == 1:
+        strand = True
+        coding_pos = "coding_start"
+    else:
+        strand = False
+        coding_pos = "coding_end"
+
     for transcript in unique_transcript_ids:
-        exons_in_transcript = gene_data[pd.DataFrame(gene_data.transcript_ids.tolist()).isin([transcript]).any(1).values].sort_values(by=['exon_start'])
+
+        exons_in_transcript = gene_data[
+            pd.DataFrame(gene_data.transcript_ids.tolist()).isin([transcript]).any(1).values].sort_values(
+            by=['exon_start'], ascending=strand)
+
         sequence = ''.join(exons_in_transcript.sequence.tolist())
 
         print(exons_in_transcript.to_string())
 
+        coding_start = int(exons_in_transcript.loc[exons_in_transcript[coding_pos].ne('').idxmax(), [coding_pos]])
+
         exon_start = list(filter(None, exons_in_transcript.exon_start.tolist()))
         exon_end = list(filter(None, exons_in_transcript.exon_end.tolist()))
 
-        if not list(filter(None, exons_in_transcript.coding_start.tolist())):
-            # Skips non coding transcripts
-            continue
-
-        relative_pos_list = [transcript, [], []]
+        relative_pos_list = [transcript, coding_start, [], []]
         relative_pos = 0
-
+        # Relative positions are counted from 1. When indexing the sequence, subtract by 1
         for start, stop in zip(exon_start, exon_end):
-            relative_pos = relative_pos + abs(stop-start)
-            relative_pos_list[1].append(relative_pos)
-            relative_pos_list[2].append(stop)
+            relative_pos = relative_pos + abs(stop-start) + 1
+            relative_pos_list[2].append(relative_pos)
+            relative_pos_list[3].append(stop)
 
         relative_pos_list.append(sequence)
-
-        # Test range
-        print('---------------------------------------')
-        print(sequence[relative_pos_list[1][0] : relative_pos_list[1][0] + 3])
-        print('---------------------------------------')
-
-        # Test range end
+        relative_pos_list[2] = np.array(relative_pos_list[2])
+        relative_pos_list[3] = np.array(relative_pos_list[3])
 
         data_dict[ind] = relative_pos_list
         ind += 1
 
+    return pd.DataFrame.from_dict(data_dict, orient='index', columns=["transcript_id", "abs_coding_start", "rel_pos",
+
+                                                                      "abs_pos", "sequence"])
+def get_rel_pos(atd, pos ,strand):
+
+    abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
+
+    if strand == 1:
+        rel_pos = int(atd.iloc[2][np.where(atd.iloc[3] == abs_exon_pos)[0][0]] - abs(abs_exon_pos - pos))
+    else:
+        indices = np.where(atd.iloc[3] > abs_exon_pos)[0]
+        if indices.size != 0:
+            rel_pos = atd.iloc[2][indices[-1]] + abs(abs_exon_pos - pos)
+        else:
+            rel_pos = abs(abs_exon_pos - pos)
+
+    return rel_pos
+
+def SNP_eval(atd, pos, var, strand):
 
 
-    return pd.DataFrame.from_dict(data_dict, orient='index', columns=["transcript_id", "relative_position", "global_position", "sequence"])
 
+    coding_start_pos = get_rel_pos(atd, atd.iloc[1], strand)
+    SNP_pos = get_rel_pos(atd, pos, strand) - coding_start_pos
+
+    print("Exon_end_chosen: " + str(atd.iloc[3][atd.iloc[3] >= atd.iloc[1]].min()))
+    print("Coding_start: " + str(coding_start_pos))
+
+
+    seq = atd.iloc[4][coding_start_pos-int((1+strand)/2):]
+    print(seq)
+    print(SNP_pos % 3)
+    SNP_codon = seq[SNP_pos - SNP_pos % 3:SNP_pos - SNP_pos % 3 + 3]
+    print(SNP_codon)
+
+    # How to do this?
+    var = var.split('/')
+    SNP_codon_var = SNP_codon[:SNP_pos % 3] + var[1] + SNP_codon[(SNP_codon % 3) + 1:]
+    print(SNP_codon_var)
+
+    amino_acids = [DNA_Codons[SNP_codon], DNA_Codons[SNP_codon_var]]
+    diff_score = compare_and_score_AA(amino_acids)
+
+    if not diff_score:
+        return 0
+
+    var_seq = seq[:SNP_pos] + var[1] + seq[SNP_pos + 1:]
+    var_amino_acid_pos = (SNP_pos // 3) + 1
+    len_var_seq = len(var_seq)
+    translated_var_seq = []
+    translated2 = []
+
+    for i in range(0, len_var_seq - len_var_seq % 3, 3):
+        amino_acid = DNA_Codons[var_seq[i:i+3]]
+        amino_acid2 = DNA_Codons[seq[i:i + 3]]
+        translated_var_seq.append(amino_acid)
+        translated2.append(amino_acid2)
+        if amino_acid == '_':
+            break
+
+    print(coding_start_pos - 1)
+    print(SNP_codon)
+
+    print(''.join(translated2)[:-1])
+    print(''.join(translated_var_seq)[:-1])
+    return [amino_acids[0] + "/" + amino_acids[1], diff_score, var_amino_acid_pos, ''.join(translated_var_seq)[:-1]]
 
 
 model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
@@ -167,6 +227,7 @@ SNP_data = pd.read_table(results_file, index_col=0)
 
 assembled_transcript_data = pd.DataFrame()
 current_gene = str()
+current_strand = 1
 
 ancestral_AA = []
 var_AA = []
@@ -174,26 +235,35 @@ change_score = []
 
 for index, data in SNP_data.iterrows():
 
-    if data['gene_id'] is not current_gene:
+    if data['gene_name'] is not current_gene:
+        current_gene = data['gene_name']
         gene_data = get_exons_by_gene_id(data['gene_id'])
+        current_strand = gene_data.iloc[0, 13]
         assembled_transcript_data = assemble_transcripts(gene_data)
 
     print(assembled_transcript_data.to_string())
-    exit()
 
-    exon = get_exon_by_id(data['exon_id'])
-    codons = identify_codon(data['chrom_pos']-exon.iloc[0, 7], exon.iloc[0, 9], exon.iloc[0]['sequence'], data['variant_alleles'])
+    transcript_ids = ast.literal_eval(data['transcript_ids'])
+    for transcript in transcript_ids:
+        print(transcript)
+        result = SNP_eval(assembled_transcript_data[assembled_transcript_data.transcript_id == transcript].iloc[0], data['chrom_pos'], data['variant_alleles'], current_strand)
 
-    if not codons:
-        ancestral_AA.append('')
-        var_AA.append('')
-        change_score.append('')
-        continue
+        if not result:
+            continue
 
-    translate_result = translate_codon(codons)
-    ancestral_AA.append(translate_result[0])
-    var_AA.append(translate_result[1])
-    change_score.append(compare_and_score_AA(translate_result))
+        print(result[:3])
+        #print(result[3][result[2]])
+
+        if current_gene == 'ENO1':
+            continue
+            exit()
+
+
+
+
+exit()
+
+
 
 
 

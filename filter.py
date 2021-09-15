@@ -155,7 +155,7 @@ for name, result in zip(result_files_names, SNP_results):
     df = pd.DataFrame(result, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
                                        'gene_id', 'transcript_ids',
                                        'exon_id', 'location'])
-
+    # Change the "%" to new format
     df.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/%s.tsv' % name, sep='\t')
 
 end_time2 = time.time()
