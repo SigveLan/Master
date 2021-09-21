@@ -106,3 +106,7 @@ var_AA.append(translate_result[1])
 change_score.append(compare_and_score_AA(translate_result))
 
 '''
+
+
+# print("Exon_end_chosen: " + str(atd.iloc[3][atd.iloc[3] >= atd.iloc[1]].min()))
+    # print("Coding_start: " + str(coding_start_pos))

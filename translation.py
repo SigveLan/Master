@@ -129,8 +129,6 @@ def assemble_transcripts(gene_data):
 
         sequence = ''.join(exons_in_transcript.sequence.tolist())
 
-        print(exons_in_transcript.to_string())
-
         coding_start = int(exons_in_transcript.loc[exons_in_transcript[coding_pos].ne('').idxmax(), [coding_pos]])
 
         exon_start = list(filter(None, exons_in_transcript.exon_start.tolist()))
@@ -152,8 +150,9 @@ def assemble_transcripts(gene_data):
         ind += 1
 
     return pd.DataFrame.from_dict(data_dict, orient='index', columns=["transcript_id", "abs_coding_start", "rel_pos",
-
                                                                       "abs_pos", "sequence"])
+
+
 def get_rel_pos(atd, pos ,strand):
 
     abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
@@ -169,27 +168,20 @@ def get_rel_pos(atd, pos ,strand):
 
     return rel_pos
 
+
 def SNP_eval(atd, pos, var, strand):
-
-
 
     coding_start_pos = get_rel_pos(atd, atd.iloc[1], strand)
     SNP_pos = get_rel_pos(atd, pos, strand) - coding_start_pos
 
-    print("Exon_end_chosen: " + str(atd.iloc[3][atd.iloc[3] >= atd.iloc[1]].min()))
-    print("Coding_start: " + str(coding_start_pos))
-
+    # print("Exon_end_chosen: " + str(atd.iloc[3][atd.iloc[3] >= atd.iloc[1]].min()))
+    # print("Coding_start: " + str(coding_start_pos))
 
     seq = atd.iloc[4][coding_start_pos-int((1+strand)/2):]
-    print(seq)
-    print(SNP_pos % 3)
     SNP_codon = seq[SNP_pos - SNP_pos % 3:SNP_pos - SNP_pos % 3 + 3]
-    print(SNP_codon)
 
-    # How to do this?
     var = var.split('/')
-    SNP_codon_var = SNP_codon[:SNP_pos % 3] + var[1] + SNP_codon[(SNP_codon % 3) + 1:]
-    print(SNP_codon_var)
+    SNP_codon_var = SNP_codon[:SNP_pos % 3] + var[1] + SNP_codon[(SNP_pos % 3) + 1:]
 
     amino_acids = [DNA_Codons[SNP_codon], DNA_Codons[SNP_codon_var]]
     diff_score = compare_and_score_AA(amino_acids)
@@ -201,23 +193,19 @@ def SNP_eval(atd, pos, var, strand):
     var_amino_acid_pos = (SNP_pos // 3) + 1
     len_var_seq = len(var_seq)
     translated_var_seq = []
-    translated2 = []
 
     for i in range(0, len_var_seq - len_var_seq % 3, 3):
         amino_acid = DNA_Codons[var_seq[i:i+3]]
-        amino_acid2 = DNA_Codons[seq[i:i + 3]]
         translated_var_seq.append(amino_acid)
-        translated2.append(amino_acid2)
         if amino_acid == '_':
             break
 
-    print(coding_start_pos - 1)
-    print(SNP_codon)
+    # Full sequence if needed
+    # translated_var_seq = ''.join(translated_var_seq)[:-1]
+    return [amino_acids[0] + "/" + amino_acids[1], var_amino_acid_pos, diff_score]
 
-    print(''.join(translated2)[:-1])
-    print(''.join(translated_var_seq)[:-1])
-    return [amino_acids[0] + "/" + amino_acids[1], diff_score, var_amino_acid_pos, ''.join(translated_var_seq)[:-1]]
 
+start_time = time.time()
 
 model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
 exons = read_exons_to_df(model_file)
@@ -229,9 +217,7 @@ assembled_transcript_data = pd.DataFrame()
 current_gene = str()
 current_strand = 1
 
-ancestral_AA = []
-var_AA = []
-change_score = []
+results = []
 
 for index, data in SNP_data.iterrows():
 
@@ -241,34 +227,24 @@ for index, data in SNP_data.iterrows():
         current_strand = gene_data.iloc[0, 13]
         assembled_transcript_data = assemble_transcripts(gene_data)
 
-    print(assembled_transcript_data.to_string())
-
     transcript_ids = ast.literal_eval(data['transcript_ids'])
+    data_as_list = data.tolist()
+
     for transcript in transcript_ids:
-        print(transcript)
         result = SNP_eval(assembled_transcript_data[assembled_transcript_data.transcript_id == transcript].iloc[0], data['chrom_pos'], data['variant_alleles'], current_strand)
 
         if not result:
             continue
 
-        print(result[:3])
-        #print(result[3][result[2]])
-
-        if current_gene == 'ENO1':
-            continue
-            exit()
+        results.append(data_as_list[:6] + [transcript] + data_as_list[7:] + result)
 
 
+columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'score']
+columns[6] = 'transcript_id'
 
+results_as_df = pd.DataFrame(results, columns=columns)
+results_as_df.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect.tsv', sep='\t')
 
-exit()
+end_time = time.time()
+print('SNP translation execution time: %.6f seconds' % (end_time-start_time))
 
-
-
-
-
-SNP_data['ancestral_AA'] = ancestral_AA
-SNP_data['var_AA'] = var_AA
-SNP_data['diff_score'] = change_score
-
-SNP_data.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect.tsv', sep='\t')
