@@ -99,3 +99,19 @@ exon_end = atd.iloc[3][atd.iloc[3] >= pos].min()
         else:
             SNP_pos = abs(exon_end - pos)
 """
+
+
+def identify_codon(pos, start_phase, seq, var):
+    var = var.split('/')
+    # Only checks for SNPs that are in codons not split between exons.
+    if (1 < pos) & (pos < len(seq) - 2):
+
+        if start_phase != '':
+            offset = abs(int(start_phase) - 3)
+            pos = pos - offset
+            seq = seq[offset:]
+
+        var_seq = seq[0:pos] + var[1] + seq[pos + 1:]
+        return [seq[pos - pos % 3:pos - pos % 3 + 3], var_seq[pos - pos % 3:pos - pos % 3 + 3]]
+
+    return []

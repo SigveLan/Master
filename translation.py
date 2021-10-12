@@ -12,7 +12,9 @@ import ast
 
 def read_exons_to_df(file):
 
-    # Same as the one from filter, but can probably be trimmed down
+    # Function is the same as the one from filter
+    # Can probably be trimmed down
+
     # Reading to dictionary then convert to dataframe is very fast.
     dictionary = {}
     ind = 0
@@ -64,14 +66,6 @@ def create_df(dictionary):
     return df
 
 
-def get_exon_by_id(exon_id):
-    return exons[(exons['exon_id'] == exon_id)]
-
-
-def get_exons_by_transcript_id(transcript_id):
-    return exons[(exons['transcript'])]
-
-
 def get_exons_by_gene_id(gene_id):
     return exons[(exons['gene_id'] == gene_id)]
 
@@ -89,22 +83,6 @@ def compare_and_score_AA(AA):
     if AA[0] == AA[1]:
         return 0
     return 1
-
-
-def identify_codon(pos, start_phase, seq, var):
-    var = var.split('/')
-    # Only checks for SNPs that are in codons not split between exons.
-    if (1 < pos) & (pos < len(seq) - 2):
-
-        if start_phase != '':
-            offset = abs(int(start_phase) - 3)
-            pos = pos - offset
-            seq = seq[offset:]
-
-        var_seq = seq[0:pos] + var[1] + seq[pos + 1:]
-        return [seq[pos - pos % 3:pos - pos % 3 + 3], var_seq[pos - pos % 3:pos - pos % 3 + 3]]
-
-    return []
 
 
 def assemble_transcripts(gene_data):
@@ -136,7 +114,7 @@ def assemble_transcripts(gene_data):
 
         relative_pos_list = [transcript, coding_start, [], []]
         relative_pos = 0
-        # Relative positions are counted from 1. When indexing the sequence, subtract by 1
+
         for start, stop in zip(exon_start, exon_end):
             relative_pos = relative_pos + abs(stop-start) + 1
             relative_pos_list[2].append(relative_pos)
@@ -153,7 +131,7 @@ def assemble_transcripts(gene_data):
                                                                       "abs_pos", "sequence"])
 
 
-def get_rel_pos(atd, pos ,strand):
+def get_rel_pos(atd, pos, strand):
 
     abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
 
@@ -210,8 +188,8 @@ start_time = time.time()
 model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
 exons = read_exons_to_df(model_file)
 
-results_file = 'C:/Users/Sigve/Genome_Data/results/SNPs_coding.tsv'
-SNP_data = pd.read_table(results_file, index_col=0)
+filtered_SNPs_file = 'C:/Users/Sigve/Genome_Data/results/SNPs_coding.tsv'
+SNP_data = pd.read_table(filtered_SNPs_file, index_col=0)
 
 assembled_transcript_data = pd.DataFrame()
 current_gene = str()
