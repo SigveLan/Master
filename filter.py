@@ -1,79 +1,27 @@
-from Bio import SeqIO
 import pandas as pd
 import time
-from operator import itemgetter
-
-# This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
-# Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons.
-
-
-def read_exons_to_df(file):
-
-    # Reading to dictionary then convert to dataframe is very fast, which is why it is done here
-    dictionary = {}
-    ind = 0
-
-    for seq_record in SeqIO.parse(open(file, mode='r'), 'fasta'):
-
-        seq_record_attributes = seq_record.description.split("|")
-        seq_record_attributes[5] = seq_record_attributes[5].split(';')
-
-        # These are always present as numbers.
-        for i in [3, 4, 7, 8, 13]:
-            seq_record_attributes[i] = int(seq_record_attributes[i])
-
-        # The phases can be empty, which means the same as phase zero.
-        for i in [9, 10]:
-            if seq_record_attributes[i] != '':
-                seq_record_attributes[i] = int(seq_record_attributes[i])
-            else:
-                seq_record_attributes[i] = 0
-
-        # There can be more than one coding start/stop in a given exon. This picks the closest to the edge of the exon.
-        for i in [11, 12]:
-            if seq_record_attributes[i] != '':
-                pos = list(map(int, seq_record_attributes[i].split(';')))
-                if len(pos) > 1:
-                    print(seq_record_attributes)
-                    differences = [abs(j - seq_record_attributes[i-4]) for j in pos]
-                    seq_record_attributes[i] = pos[min(enumerate(differences), key=itemgetter(1))[0]]
-
-                else:
-                    seq_record_attributes[i] = int(seq_record_attributes[i])
-
-        # If the sequence should be included in the dataframe - not necessary here.
-        # ..Remember to add a new column in "create_df".
-        #seq_record_attributes.append(seq_record.seq)
-
-        dictionary[ind] = seq_record_attributes
-        ind += 1
-
-    return create_df(dictionary)
-
-def create_df(dictionary):
-
-    df = pd.DataFrame.from_dict(dictionary, orient='index', columns=["gene_id", "gene_name", "chrom", "gene_start",
-                                                                     "gene_end", "transcript_ids", "exon_id",
-                                                                     "exon_start", "exon_end", "phase_start",
-                                                                     "phase_end", "coding_start", "coding_end",
-                                                                     "strand"])
-    return df
-
-
+from read_exons_to_df import read_exons_to_df
+"""
+This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
+Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons.
+"""
 def read_SNPs_to_df(file):
+    """Reads in SNP data"""
     return pd.read_table(file, index_col=0)
 
 
 def check_if_SNP_in_gene(SNP_pos):
+    """Checks if a SNP is within a gene region, and if it is, returns that gene"""
     return exons[(exons['gene_start'] <= SNP_pos) & (exons['gene_end'] >= SNP_pos)]
 
 
 def check_if_SNP_in_exons(gene, SNP_pos):
+    """Takes in all exons of a gene and checks if a SNP is within one or more, returns affected exons"""
     return gene[(gene['exon_start'] <= SNP_pos) & (gene['exon_end'] >= SNP_pos)]
 
 
 def check_if_SNP_in_coding_region(affected_exon, SNP_pos):
-
+    """Takes in an affected exon and checks if the SNP is within the coding region"""
     if not(isinstance(affected_exon['coding_start'], int) & isinstance(affected_exon['coding_end'], int)):
         return False
     elif (affected_exon['coding_start'] <= SNP_pos) & (affected_exon['coding_end'] >= SNP_pos):
@@ -83,6 +31,7 @@ def check_if_SNP_in_coding_region(affected_exon, SNP_pos):
 
 
 def check_SNP_location(SNP_pos):
+    """Checks if a SNP is within an area of interest"""
     genes = check_if_SNP_in_gene(SNP_pos)
 
     if genes.empty:
@@ -114,13 +63,14 @@ def check_SNP_location(SNP_pos):
                 ids.append(SNP_data)
     return ids
 
+model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'
+SNPs_file = 'C:/Users/Sigve/Genome_Data/SNP_data/biomart_chrom_all_test.tsv'
 
-model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
-SNPs_file = 'C:/Users/Sigve/Genome_Data/SNP_data/biomart_chrom_1_test_1.tsv'
-
-# Timer for reading in moel file, not necessary for function
+# Timer for reading in exon data file, not necessary for function
 start_time = time.time()
+
 exons = read_exons_to_df(model_file)
+
 end_time = time.time()
 print('Reading execution time = %.6f seconds' % (end_time-start_time))
 
@@ -133,10 +83,6 @@ result_files_names = ['SNPs_non_coding', 'SNPs_coding']
 SNP_results = [[], []]
 
 for index, SNP in SNPs.iterrows():
-
-    if len(SNP['Variant alleles']) != 3:
-        # Skips non-SNP variations
-        continue
 
     location = check_SNP_location(SNP['Chromosome/scaffold position start (bp)'])
 

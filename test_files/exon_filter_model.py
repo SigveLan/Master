@@ -6,10 +6,11 @@ import pandas as pd
 exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all.fa'
 output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'
 
-model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/recon-store-genes.tsv'
+model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/gene_names_in_model.tsv'
 
-model_df = pd.read_table(model_file, index_col=0)
-model_gene_ids = model_df['ensembl_gene'].tolist()
+model_df = pd.read_table(model_file)
+model_gene_ids = model_df['gene_name'].tolist()
+
 
 chromosomes = [str(num) for num in range(1, 23)] + ['X', 'Y', 'MT']
 exon_data_by_chromosome = [[] for num in range(25)]
@@ -21,8 +22,10 @@ for seq_record in SeqIO.parse(open(exon_file, mode='r'), 'fasta'):
 
     seq_record_attributes = seq_record.description.split('|')
     count_in += 1
-    if seq_record_attributes[0].split('.')[0] not in model_gene_ids:
+    gene_name = seq_record_attributes[1]
+    if gene_name not in model_gene_ids:
         continue
+
     exon_data_by_chromosome[chromosomes.index(seq_record_attributes[2])].append((int(seq_record_attributes[7]), int(seq_record_attributes[8]), seq_record))
 
 

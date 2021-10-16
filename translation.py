@@ -1,92 +1,33 @@
-from Bio import SeqIO
 import pandas as pd
 import numpy as np
 from genetic_code import DNA_Codons
 import time
-from operator import itemgetter
 import itertools
 import ast
-
-# This script takes in the SNPs in coding region results from 'filter.py' and checks if there is a change in AA sequence
-
-
-def read_exons_to_df(file):
-
-    # Function is the same as the one from filter
-    # Can probably be trimmed down
-
-    # Reading to dictionary then convert to dataframe is very fast.
-    dictionary = {}
-    ind = 0
-
-    for seq_record in SeqIO.parse(open(file, mode='r'), 'fasta'):
-
-        seq_record_attributes = seq_record.description.split("|")
-        seq_record_attributes[5] = seq_record_attributes[5].split(';')
-
-        # These are always present as numbers.
-        for i in [3, 4, 7, 8, 13]:
-            seq_record_attributes[i] = int(seq_record_attributes[i])
-
-        # The phases can be empty, which means the same as phase zero.
-        for i in [9, 10]:
-            if seq_record_attributes[i] != '':
-                seq_record_attributes[i] = int(seq_record_attributes[i])
-            else:
-                seq_record_attributes[i] = 0
-
-        # Although rare, there can be more than one coding start/stop in a given exon.
-        # This picks the closest to the edge of the exon.
-        for i in [11, 12]:
-            if seq_record_attributes[i] != '':
-                pos = list(map(int, seq_record_attributes[i].split(';')))
-                if len(pos) > 1:
-                    differences = [abs(j - seq_record_attributes[i-4]) for j in pos]
-                    seq_record_attributes[i] = pos[min(enumerate(differences), key=itemgetter(1))[0]]
-
-                else:
-                    seq_record_attributes[i] = int(seq_record_attributes[i])
-
-        # Adds the sequence
-        seq_record_attributes.append(str(seq_record.seq))
-
-        dictionary[ind] = seq_record_attributes
-        ind += 1
-
-    return create_df(dictionary)
-
-
-def create_df(dictionary):
-
-    df = pd.DataFrame.from_dict(dictionary, orient='index', columns=["gene_id", "gene_name", "chrom", "gene_start",
-                                                                     "gene_end", "transcript_ids", "exon_id",
-                                                                     "exon_start", "exon_end", "phase_start",
-                                                                     "phase_end", "coding_start", "coding_end",
-                                                                     "strand", "sequence"])
-    return df
-
+from read_exons_to_df import read_exons_to_df
+"""
+This script takes in the SNPs in coding region results from 'filter.py' and checks if there is a change in AA sequence
+"""
 
 def get_exons_by_gene_id(gene_id):
+    """Return all the exons for a given gene"""
     return exons[(exons['gene_id'] == gene_id)]
 
 
 def translate_DNA(seq):
-    protein_sequence = []
-    for i in range(0, len(seq) - 2, 3):
-        protein_sequence.append(DNA_Codons[seq[i:i + 3]])
-
-    return ''.join(protein_sequence)
+    """Translates DNA, not in use currently"""
+    return ''.join([DNA_Codons[seq[i:i + 3]] for i in range(0, len(seq) - 2, 3)])
 
 
 def compare_and_score_AA(AA):
-
+    """Compares two amino acids and give a score"""
     if AA[0] == AA[1]:
         return 0
     return 1
 
 
 def assemble_transcripts(gene_data):
-
+    """Assembles the different transcripts for a given gene"""
     unique_transcript_ids = set(itertools.chain.from_iterable(gene_data.transcript_ids))
 
     data_dict = {}
@@ -132,6 +73,7 @@ def assemble_transcripts(gene_data):
 
 
 def get_rel_pos(atd, pos, strand):
+    """Finds the relative position inside a sequence based on an absolute position in the chromosome"""
 
     abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
 
@@ -148,6 +90,7 @@ def get_rel_pos(atd, pos, strand):
 
 
 def SNP_eval(atd, pos, var, strand):
+    """Evaluates if a SNP produces a change in amino acid sequence for a given transcript"""
 
     coding_start_pos = get_rel_pos(atd, atd.iloc[1], strand)
     SNP_pos = get_rel_pos(atd, pos, strand) - coding_start_pos
@@ -185,7 +128,7 @@ def SNP_eval(atd, pos, var, strand):
 
 start_time = time.time()
 
-model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_1.fa'
+model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'
 exons = read_exons_to_df(model_file)
 
 filtered_SNPs_file = 'C:/Users/Sigve/Genome_Data/results/SNPs_coding.tsv'
@@ -195,7 +138,7 @@ assembled_transcript_data = pd.DataFrame()
 current_gene = str()
 current_strand = 1
 
-results = []
+result_list = []
 
 for index, data in SNP_data.iterrows():
 
@@ -214,15 +157,14 @@ for index, data in SNP_data.iterrows():
         if not result:
             continue
 
-        results.append(data_as_list[:6] + [transcript] + data_as_list[7:] + result)
+        result_list.append(data_as_list[:6] + [transcript] + data_as_list[7:] + result)
 
 
 columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'score']
 columns[6] = 'transcript_id'
 
-results_as_df = pd.DataFrame(results, columns=columns)
-results_as_df.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect.tsv', sep='\t')
+pd.DataFrame(result_list, columns=columns).to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect.tsv', sep='\t')
 
 end_time = time.time()
-print('SNP translation execution time: %.6f seconds' % (end_time-start_time))
+print('SNP evaluation execution time: %.6f seconds' % (end_time-start_time))
 
