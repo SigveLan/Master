@@ -10,7 +10,7 @@ def main():
     length = len(SNPs)
     result = {}
     for i in range(40):
-        sample = random.sample(range(0, length), random.randint(1, length-5))
+        sample = random.sample(range(0, length), random.randint(1, 20))
         result[i] = ';'.join(SNPs.filter(items=sample, axis=0).iloc[:, 0].tolist())
 
     pd.Series(result, name='combinations').to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNP_combinations.tsv', sep='\t')
