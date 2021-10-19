@@ -4,11 +4,13 @@ from operator import itemgetter
 
 
 def SNP_sort(SNP_file: str, write_results_to_file=True) -> pd.DataFrame:
+    """A function for sorting SNPs by chromosome and position. Also removes duplicates and non-SNP mutations,
+    as well as SNPs with more than one variant base."""
 
     SNP_df = pd.read_table(SNP_file)
 
     SNP_df.drop_duplicates(subset=['Variant name'], inplace=True)
-    SNP_df.sort_values(by=['Chromosome/scaffold position start (bp)'], inplace=True)
+    SNP_df.sort_values(by=['Chromosome/scaffold name', 'Chromosome/scaffold position start (bp)'], inplace=True)
     SNP_df.set_index(['Variant name'], drop=True, inplace=True)
     SNP_df['Variant alleles'] = SNP_df['Variant alleles'].apply(str)
     SNP_df = SNP_df[SNP_df['Variant alleles'].str.contains("^[ACTG]/[ACTG]$")]
@@ -27,13 +29,12 @@ def read_exons_to_df(exon_file: str) -> pd.DataFrame:
     """Reads in genome data in the form of an exon fasta file.
 
     Header setup:
-    >gene_id|gene_name|chromosome|gene_start(bp)|gene_end(bp)|transcript_ids|exon_id|exon_start(bp)|exon_end(bp)|
+    >gene_id|gene_name|chromosome|gene_start(bp)|gene_end(bp)|transcript_id(s)|exon_id|exon_start(bp)|exon_end(bp)|
     phase_start|phase_end|coding_start(bp)|coding_end(bp)|strand
 
     Header example:
     >ENSG00000008130.15|NADK|1|1751232|1780457|ENST00000341426.9;ENST00000341991.7;ENST00000378625.5|
     ENSE00003487616|1761952|1762035|2|2|1761952|1762035|-1
-
     """
 
     # Reading to dictionary then convert to dataframe is very fast
@@ -80,7 +81,7 @@ def read_exons_to_df(exon_file: str) -> pd.DataFrame:
                                                                      "strand", "sequence"])
 
 
-def add_recon3d_id(model_file: str, SNP_data: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
+def add_cbm_id(model_file: str, SNP_data: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
     """A function to add gene number from the CBM model to the SNP results"""
 
     model_df = pd.read_table(model_file)

@@ -1,3 +1,6 @@
+
+"""A file containing DNA complement data and the genetic code."""
+
 DNA_Nucleotides = ['A', 'C', 'G', 'T']
 DNA_ReverseComplement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
 

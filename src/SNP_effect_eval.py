@@ -5,22 +5,19 @@ import time
 import itertools
 from tqdm import tqdm
 
-"""
-This script takes in the SNPs in coding region results from 'SNP_filter.py' and checks if there is a change in AA sequence
-"""
-
 
 def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
-    """Main function"""
+    """This function takes in the SNPs in coding region results from 'SNP_filter.py' and checks if there is a change in
+       amino acid sequence."""
 
     def compare_and_score_AA(AA: list) -> int:
-        """Compares two amino acids and give a score"""
+        """Compares two amino acids and give a score."""
         if AA[0] == AA[1]:
             return 0
         return 1
 
     def assemble_transcripts(gene_data: pd.DataFrame, strand: int) -> pd.DataFrame:
-        """Assembles the different transcripts for a given gene"""
+        """Assembles the different transcripts for a given gene by means of concatenating exons."""
         unique_transcript_ids = set(itertools.chain.from_iterable(gene_data.transcript_ids))
 
         data_dict = {}
@@ -66,7 +63,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
 
 
     def get_rel_pos(atd: pd.DataFrame, pos: int, strand: int) -> int:
-        """Finds the relative position inside a sequence based on an absolute position in the chromosome"""
+        """Finds the relative position inside a sequence based on an absolute position in the chromosome."""
 
         abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
 
@@ -82,7 +79,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         return rel_pos
 
     def translate_DNA(seq: str) -> str:
-        """Translates DNA, not in use currently"""
+        """Translates DNA, not in use currently."""
 
         len_seq = len(seq)
         translated_var_seq = []
@@ -96,7 +93,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         return ''.join(translated_var_seq)[:-1]
 
     def SNP_translation(atd: pd.DataFrame, pos: int, var: str, strand: int) -> list:
-        """Evaluates if a SNP produces a change in amino acid sequence for a given transcript"""
+        """Evaluates if a SNP produces a change in amino acid sequence for a given transcript."""
 
         coding_start_pos = get_rel_pos(atd, atd.iloc[1], strand)
         SNP_pos = get_rel_pos(atd, pos, strand) - coding_start_pos
@@ -119,7 +116,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         diff_score = compare_and_score_AA(amino_acids)
 
         if not diff_score:
-            return 0
+            return []
 
         var_amino_acid_pos = (SNP_pos // 3) + 1
 

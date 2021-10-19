@@ -2,14 +2,10 @@ import pandas as pd
 import time
 from tqdm import tqdm
 
-"""
-This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
-Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons.
-"""
-
 
 def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
-    """Main function"""
+    """This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
+       Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons."""
 
     def check_if_SNP_in_coding_region(affected_exon: pd.DataFrame, SNP_pos: int) -> bool:
         """Takes in an affected exon and checks if the SNP is within the coding region"""
