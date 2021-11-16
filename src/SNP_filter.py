@@ -3,8 +3,8 @@ import time
 from tqdm import tqdm
 
 
-def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
-    """This script reads in SNPs and exon data, then checks if the SNPs are located in an exon.
+def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=False) -> pd.DataFrame:
+    """This script reads in SNPs and exon/gene data, then checks if the SNPs are located in an exon/gene.
        Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons."""
 
     def check_if_SNP_in_coding_region(affected_exon: pd.DataFrame, SNP_pos: int) -> bool:
@@ -55,7 +55,6 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=Tr
         return pd.DataFrame(result_list, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
                                                    'gene_id', 'transcript_ids', 'exon_id', 'location'])
 
-    start_time2 = time.time()
 
     num_SNPs = 0
     SNP_results = [[], []]
@@ -75,15 +74,13 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=Tr
 
     SNP_results_as_dfs = [result_to_df(lst) for lst in SNP_results]
 
+    # Prints both coding and non-coding results to two separate files.
     if write_results_to_file:
         for name, result in zip(['SNPs_non_coding', 'SNPs_coding'], SNP_results_as_dfs):
             result.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/{!s}.tsv'.format(name), sep='\t')
 
-    end_time2 = time.time()
-    print('\nMapping execution time: %.6f seconds' % (end_time2-start_time2))
-    print('Number of SNPs in coding region: ' + str(num_SNPs))
 
-    # Only return the in coding region results.
+    # Only returns coding region results.
     return SNP_results_as_dfs[1]
 
 

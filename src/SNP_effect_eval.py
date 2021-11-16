@@ -6,7 +6,7 @@ import itertools
 from tqdm import tqdm
 
 
-def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
+def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame:
     """This function takes in the SNPs in coding region results from 'SNP_filter.py' and checks if there is a change in
        amino acid sequence."""
 
@@ -17,7 +17,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         return 1
 
     def assemble_transcripts(gene_data: pd.DataFrame, strand: int) -> pd.DataFrame:
-        """Assembles the different transcripts for a given gene by means of concatenating exons."""
+        """Assembles the different transcripts for a given gene by concatenating exons."""
         unique_transcript_ids = set(itertools.chain.from_iterable(gene_data.transcript_ids))
 
         data_dict = {}
@@ -61,9 +61,8 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         return pd.DataFrame.from_dict(data_dict, orient='index', columns=["transcript_id", "abs_coding_start", "rel_pos",
                                                                           "abs_pos", "sequence"])
 
-
     def get_rel_pos(atd: pd.DataFrame, pos: int, strand: int) -> int:
-        """Finds the relative position inside a sequence based on an absolute position in the chromosome."""
+        """Finds the relative position inside a sequence based on absolute position in the chromosome."""
 
         abs_exon_pos = atd.iloc[3][atd.iloc[3] >= pos].min()
 
@@ -79,7 +78,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         return rel_pos
 
     def translate_DNA(seq: str) -> str:
-        """Translates DNA, not in use currently."""
+        """Translates DNA, not currently in use, but needed for full translation"""
 
         len_seq = len(seq)
         translated_var_seq = []
@@ -98,6 +97,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         coding_start_pos = get_rel_pos(atd, atd.iloc[1], strand)
         SNP_pos = get_rel_pos(atd, pos, strand) - coding_start_pos
 
+        # Prints for checking output
         # print("Exon_end_chosen: " + str(atd.iloc[3][atd.iloc[3] >= atd.iloc[1]].min()))
         # print("Coding_start: " + str(coding_start_pos))
 
@@ -106,7 +106,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
 
         var = var.split('/')
         if strand == -1:
-            # The SNPs are always forward strand; needs to be reversed to get accurate effect
+            # The SNPs are always forward strand; needs to be reversed to get accurate result
             var[0] = DNA_ReverseComplement[var[0]]
             var[1] = DNA_ReverseComplement[var[1]]
 
@@ -120,12 +120,10 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
 
         var_amino_acid_pos = (SNP_pos // 3) + 1
 
-        # If we want full translated seq, remember to add it to results
+        # If full translated seq is needed, uncomment below. Remember to add it to results
         #transltated_var_seq = translate_DNA(seq[:SNP_pos] + var[1] + seq[SNP_pos + 1:])
 
         return [amino_acids[0] + "/" + amino_acids[1], var_amino_acid_pos, diff_score]
-
-    start_time = time.time()
 
     assembled_transcript_data = pd.DataFrame()
     current_gene = str()
@@ -136,7 +134,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
 
         if data['gene_name'] != current_gene:
             current_gene = data['gene_name']
-            gene_df = exons[(exons['gene_id'] == data['gene_id'])]
+            gene_df = exons[(exons['gene_name'] == data['gene_name'])]
             current_strand = gene_df.iloc[0, 13]
             assembled_transcript_data = assemble_transcripts(gene_df, current_strand)
 
@@ -144,7 +142,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
         data_as_list = data.tolist()
 
         for transcript in transcript_ids:
-            result = SNP_translation(assembled_transcript_data[assembled_transcript_data.transcript_id == transcript]
+            result = SNP_translation(assembled_transcript_data[assembled_transcript_data['transcript_id'] == transcript]
                                      .iloc[0], data['chrom_pos'], data['variant_alleles'], current_strand)
 
             if not result:
@@ -155,11 +153,5 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame, write_results_t
     columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'score']
     columns[6] = 'transcript_id'
     result_df = pd.DataFrame(result_list, columns=columns)
-
-    if write_results_to_file:
-        result_df.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect.tsv', sep='\t')
-
-    end_time = time.time()
-    print('SNP evaluation execution time: %.6f seconds' % (end_time-start_time))
 
     return result_df

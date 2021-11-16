@@ -1,10 +1,14 @@
 import pandas as pd
 from Bio import SeqIO
 from operator import itemgetter
+import numpy as np
+import cobra.flux_analysis
+from multiprocessing import Pool, cpu_count
+from functools import partial
 
 
 def SNP_sort(SNP_file: str, write_results_to_file=True) -> pd.DataFrame:
-    """A function for sorting SNPs by chromosome and position. Also removes duplicates and non-SNP mutations,
+    """A function for sorting SNPs by chromosome and position. Also removes duplicates and non SNP mutations,
     as well as SNPs with more than one variant base."""
 
     SNP_df = pd.read_table(SNP_file)
@@ -25,7 +29,7 @@ def SNP_sort(SNP_file: str, write_results_to_file=True) -> pd.DataFrame:
     return SNP_df
 
 
-def read_exons_to_df(exon_file: str) -> pd.DataFrame:
+def read_exons_to_df(exon_file_path: str) -> pd.DataFrame:
     """Reads in genome data in the form of an exon fasta file.
 
     Header setup:
@@ -41,7 +45,7 @@ def read_exons_to_df(exon_file: str) -> pd.DataFrame:
     dictionary = {}
     ind = 0
 
-    for seq_record in SeqIO.parse(open(exon_file, mode='r'), 'fasta'):
+    for seq_record in SeqIO.parse(open(exon_file_path, mode='r'), 'fasta'):
 
         seq_record_attributes = seq_record.description.split("|")
         seq_record_attributes[5] = seq_record_attributes[5].split(';')
@@ -81,10 +85,10 @@ def read_exons_to_df(exon_file: str) -> pd.DataFrame:
                                                                      "strand", "sequence"])
 
 
-def add_cbm_id(model_file: str, SNP_data: pd.DataFrame, write_results_to_file=True) -> pd.DataFrame:
+def add_cbm_id(model_data_path: str, SNP_data: pd.DataFrame) -> pd.DataFrame:
     """A function to add gene number from the CBM model to the SNP results"""
 
-    model_df = pd.read_table(model_file)
+    model_df = pd.read_table(model_data_path)
     model_df = model_df[['gene_number', 'ensembl_gene']]
 
     model_df['gene_number'] = model_df['gene_number'].astype(int)
@@ -98,7 +102,37 @@ def add_cbm_id(model_file: str, SNP_data: pd.DataFrame, write_results_to_file=Tr
     joined_df.reset_index(drop=True, inplace=True)
     joined_df['gene_number'] = joined_df['gene_number'].astype(int)
 
-    if write_results_to_file:
-        joined_df.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNPs_effect_mod.tsv', sep='\t')
-
     return joined_df
+
+
+def df_to_tsv(df: pd.DataFrame, file_path: str) -> None:
+    df.to_csv(path_or_buf=file_path, sep='\t')
+
+
+def split_filter(SNP_filter, SNPs: pd.DataFrame) -> pd.DataFrame:
+    """Splits the SNPs over multiple cpu cores for the initial filter."""
+    return SNP_filter(SNPs)
+
+
+def knockout_FBA(model: cobra.Model, gene_ids: list) -> cobra.Solution:
+    """Knock out FBA of given gene combinations."""
+    with model:
+        for gene_id in gene_ids:
+            model.genes.get_by_id(gene_id).knock_out()
+        return model.optimize()
+
+
+def combinations_subset(knockout_FBA, combinations: pd.DataFrame) -> pd.DataFrame:
+    """Applies knockout_FBA to the given data subset."""
+    combinations['results'] = combinations['gene_model_ids'].apply(knockout_FBA)
+    return combinations
+
+
+def parallelize_dataframe(df: pd.DataFrame, func, n_cores=cpu_count()) -> pd.DataFrame:
+    """Splits a dataframe into subsets and divides it over multiple cpu threads for faster processing."""
+    df_split = np.array_split(df, n_cores)
+    pool = Pool(n_cores)
+    df = pd.concat(pool.map(func, df_split))
+    pool.close()
+    pool.join()
+    return df
