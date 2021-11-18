@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from src.genetic_code import DNA_Codons, DNA_ReverseComplement
-import time
 import itertools
 from tqdm import tqdm
 
@@ -145,13 +144,14 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame
             result = SNP_translation(assembled_transcript_data[assembled_transcript_data['transcript_id'] == transcript]
                                      .iloc[0], data['chrom_pos'], data['variant_alleles'], current_strand)
 
-            if not result:
-                continue
-
-            result_list.append(data_as_list[:6] + [transcript] + data_as_list[7:] + result)
+            if result:
+                result_list.append(data_as_list[:6] + [transcript] + [data_as_list[7]] + ['non_synonymous'] + result)
+            else:
+                result_list.append(data_as_list[:6] + [transcript] + [data_as_list[7]] + ['synonymous'])
 
     columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'score']
     columns[6] = 'transcript_id'
-    result_df = pd.DataFrame(result_list, columns=columns)
+    columns[8] = 'SNP_type'
 
-    return result_df
+    # Returns a list of two dataframes, one with synonymous SNPs and one with non-synonymous SNPs
+    return pd.DataFrame(result_list, columns=columns)

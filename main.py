@@ -1,6 +1,6 @@
 from src.SNP_filter import SNP_filter
 from src.SNP_effect_eval import SNP_effect_eval
-from src.assorted_functions import SNP_sort, read_exons_to_df, add_cbm_id, df_to_tsv, split_filter_results_by_location
+from src.assorted_functions import SNP_sort, read_exons_to_df, add_cbm_id, df_to_tsv, split_df_results_by_column
 from src.mp_functions import parallelize_dataframe, split_filter
 import time
 from functools import partial
@@ -15,7 +15,8 @@ def main():
     output_file_names = [path + 'results/SNPs_coding.tsv',
                          path + 'results/SNPs_non_coding.tsv',
                          path + 'results/SNPs_transcript_non_coding.tsv',
-                         path + 'results/SNPs_effect.tsv',
+                         path + 'results/SNPs_non_synonymous.tsv',
+                         path + 'results/SNPs_synonymous.tsv',
                          path + 'SNP_data/SNPs_sorted.tsv']
 
     write_results_to_file = True
@@ -25,7 +26,7 @@ def main():
 
     SNPs = SNP_sort(SNPs_file)
     if write_results_to_file:
-        df_to_tsv(SNPs, output_file_names[4])
+        df_to_tsv(SNPs, output_file_names[5])
 
     exons = read_exons_to_df(genome_data_file)
     end_time1 = time.time()
@@ -34,8 +35,9 @@ def main():
     print("Total of " + str(SNPs.shape[0]) + " SNPs divided over " + str(n_cores) + " CPU threads for mapping.")
     SNPs_in_coding = parallelize_dataframe(SNPs, partial(split_filter, partial(SNP_filter, exons)), n_cores)
 
-    # Makes it a list of three dataframes
-    SNPs_in_coding = split_filter_results_by_location(SNPs_in_coding)
+    # Splits the data frame into a list of three dataframes based on location.
+    # Needs to be done here due to parallelization.
+    SNPs_in_coding = split_df_results_by_column(SNPs_in_coding, 'location', ['coding_sequence', 'non_coding_region', 'transcript_non_coding'])
 
     if write_results_to_file:
         for i in range(3):
@@ -50,12 +52,17 @@ def main():
 
     SNPs_effect = SNP_effect_eval(exons, SNPs_in_coding)
     end_time3 = time.time()
-    print('SNP effect evaluation time: %.6f seconds' % (end_time3 - end_time2) +
-          '\nNumber of affected transcripts: ' + str(SNPs_effect.shape[0]))
 
-    SNPs_effect = add_cbm_id(cbm_model_data_file, SNPs_effect)
+    # Split into synonymous and non-synonymous SNPs
+    SNPs_effect = split_df_results_by_column(SNPs_effect, 'SNP_type', ['non_synonymous', 'synonymous'])
+    print('SNP effect evaluation time: %.6f seconds' % (end_time3 - end_time2) +
+          '\nNumber of SNPs causing amino acid change, plus affected transcripts per SNP: ' + str(SNPs_effect[0].shape[0]) +
+          '\nNumber of synonymous SNPs, plus affected transcripts per SNP: ' + str(SNPs_effect[1].shape[0]))
+
+    SNPs_effect[0] = add_cbm_id(cbm_model_data_file, SNPs_effect[0])
     if write_results_to_file:
-        df_to_tsv(SNPs_effect, output_file_names[3])
+        df_to_tsv(SNPs_effect[0].drop(columns=['SNP_type']), output_file_names[3])
+        df_to_tsv(SNPs_effect[1].drop(columns=['SNP_type', 'amino_acid_change', 'amino_acid_pos', 'score']), output_file_names[4])
 
     end_time4 = time.time()
     print('Total time: %.6f seconds' % (end_time4 - start_time))

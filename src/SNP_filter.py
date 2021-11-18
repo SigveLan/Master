@@ -63,8 +63,9 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame) -> pd.DataFrame:
 
             result_list.append(sublist)
 
-    # Returns results for all SNPs that are within a gene region
+    # Returns a dataframe of all results
     return pd.DataFrame(result_list, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
                                               'gene_id', 'transcript_ids', 'exon_id', 'location'])
+
 
 

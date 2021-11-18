@@ -6,7 +6,6 @@ from operator import itemgetter
 def SNP_sort(SNP_file: str) -> pd.DataFrame:
     """A function for sorting SNPs by chromosome and position. Also removes duplicates and non SNP mutations,
     as well as SNPs with more than one variant base."""
-    # Be aware not all genes listed in the model info file is actually in hte model. Thye are from d
     SNP_df = pd.read_table(SNP_file)
 
     SNP_df.drop_duplicates(subset=['Variant name'], inplace=True)
@@ -106,11 +105,6 @@ def df_to_tsv(df: pd.DataFrame, file_path: str) -> None:
     df.to_csv(path_or_buf=file_path, sep='\t')
 
 
-def split_filter_results_by_location(filter_results: pd.DataFrame) -> list:
+def split_df_results_by_column(filter_results: pd.DataFrame, column: str, values: list) -> list:
     """Takes in the results from SNP_filter and splits it into three dataframes"""
-    locations = ['coding_sequence', 'non_coding_region', 'transcript_non_coding']
-    return [filter_results[filter_results['location'] == location].reset_index(drop=True)
-            for location in locations]
-
-
-
+    return [filter_results[filter_results[column] == value].reset_index(drop=True) for value in values]
