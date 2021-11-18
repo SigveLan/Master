@@ -1,14 +1,15 @@
 import pandas as pd
-import time
 from tqdm import tqdm
 
 
-def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=False) -> pd.DataFrame:
+def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame) -> pd.DataFrame:
     """This script reads in SNPs and exon/gene data, then checks if the SNPs are located in an exon/gene.
-       Outputs two files: one with SNPs inside exons and one with SNPs inside genes but not in exons."""
+       Outputs two files: one with SNPs inside exons and one with SNPs inside gene-regions
+       and transcripts but not in exons."""
 
     def check_if_SNP_in_coding_region(affected_exon: pd.DataFrame, SNP_pos: int) -> bool:
-        """Takes in an affected exon and checks if the SNP is within the coding region"""
+        """Takes in an affected exon and checks if the SNP is within the coding region."""
+
         if not(isinstance(affected_exon['coding_start'], int) & isinstance(affected_exon['coding_end'], int)):
             return False
         elif (affected_exon['coding_start'] <= SNP_pos) & (affected_exon['coding_end'] >= SNP_pos):
@@ -17,7 +18,7 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=Fa
             return False
 
     def check_SNP_location(SNP_pos: int, chrom: str) -> list:
-        """Checks if a SNP is within an area of interest"""
+        """Checks if a SNP is within a gene area."""
 
         genes = exons[(exons['gene_start'] <= SNP_pos) & (exons['gene_end'] >= SNP_pos)]
         genes = genes.loc[genes['chrom'] == str(chrom)]
@@ -43,21 +44,15 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=Fa
                     SNP_data = gene_name_id + [row['transcript_ids'], row['exon_id']]
 
                     if check_if_SNP_in_coding_region(row, SNP_pos):
-                        SNP_data.append('coding_region')
+                        SNP_data.append('coding_sequence')
 
                     else:
-                        SNP_data.append('transcript_non_coding_region')
+                        SNP_data.append('transcript_non_coding')
 
                     ids.append(SNP_data)
         return ids
 
-    def result_to_df(result_list: list) -> pd.DataFrame:
-        return pd.DataFrame(result_list, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
-                                                   'gene_id', 'transcript_ids', 'exon_id', 'location'])
-
-
-    num_SNPs = 0
-    SNP_results = [[], []]
+    result_list = []
 
     for index, SNP in tqdm(SNPs.iterrows(), total=SNPs.shape[0]):
 
@@ -66,21 +61,10 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame, write_results_to_file=Fa
         for sublist in location:
             sublist = [index, SNP['Chromosome/scaffold name'], SNP['Chromosome/scaffold position start (bp)'], SNP['Variant alleles']] + sublist
 
-            if sublist[8] == 'coding_region':
-                SNP_results[1].append(sublist)
-                num_SNPs += 1
-            else:
-                SNP_results[0].append(sublist)
+            result_list.append(sublist)
 
-    SNP_results_as_dfs = [result_to_df(lst) for lst in SNP_results]
-
-    # Prints both coding and non-coding results to two separate files.
-    if write_results_to_file:
-        for name, result in zip(['SNPs_non_coding', 'SNPs_coding'], SNP_results_as_dfs):
-            result.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/{!s}.tsv'.format(name), sep='\t')
-
-
-    # Only returns coding region results.
-    return SNP_results_as_dfs[1]
+    # Returns results for all SNPs that are within a gene region
+    return pd.DataFrame(result_list, columns=['variant_name', 'chrom', 'chrom_pos', 'variant_alleles', 'gene_name',
+                                              'gene_id', 'transcript_ids', 'exon_id', 'location'])
 
 

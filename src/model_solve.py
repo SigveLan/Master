@@ -3,46 +3,47 @@ import re
 import pandas as pd
 import itertools
 import cobra.flux_analysis
-from multiprocessing import Pool
 from functools import partial
 import time
-from assorted_functions import combinations_subset, parallelize_dataframe, knockout_FBA
+from mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA
 
-"""A mess of a document with different code cells.
-Good to to use for any testing that involves the Recon3D model as it takes some time to load in."""
+"""A file intended to be used for the model solving part instead of the jupyter notebook in the end."""
 
 
-def read_combinations(combinations_path: str) -> pd.DataFrame:
-    """Prepare SNP combinations, reaction constraints"""
+def apply_gene_ids_to_combinations(model: cobra.Model, SNP_results: pd.DataFrame, combinations: pd.DataFrame) -> pd.DataFrame:
+    """Prepare SNP combinations for use as reaction constraints by producing model gene id lists for each combination"""
 
-    combinations = pd.read_table(combinations_path, index_col=0)
     combinations['combinations'] = combinations['combinations'].apply(lambda x: x.split(';'))
 
     combinations['gene_model_ids'] = combinations['combinations']\
         .apply(lambda x: SNP_results.loc[SNP_results['variant_name'].isin(x), ['gene_number']].iloc[:, 0].tolist())
 
-    id_list = ' '.join(model.genes.list_attr('id'))
+    id_list = ';' + ';'.join(model.genes.list_attr('id'))
 
     combinations['gene_model_ids'] = combinations['gene_model_ids'].apply(lambda x:
-                                    list(set(itertools.chain.from_iterable(
-                                    [re.findall(r"(?:\s)(" + str(i) + r"\w\w\w\d)", id_list) for i in x]))))
+                                        list(set(itertools.chain.from_iterable(
+                                        [re.findall(r"(?:;)(" + str(i) + r"_AT\d)", id_list) for i in x]))))
 
     return combinations
 
 
-if __name__ == '__main__':
-    start_time = time.time()
-    model = cobra.io.load_json_model('C:/Users/Sigve/Genome_Data/Recon3D/JSON/Recon3D.json')
-    SNP_results = pd.read_table('C:/Users/Sigve/Genome_Data/results/SNPs_effect_mod.tsv', index_col=0)
-    end_time = time.time()
-    print('Model load time: %.6f seconds' % (end_time - start_time))
-
-    combinations = read_combinations('C:/Users/Sigve/Genome_Data/results/SNP_combinations.tsv')
+def model_solve(SNPs_mod: pd.DataFrame, model_path: str, combinations_path: str, n_cores: int) -> pd.DataFrame:
 
     start_time = time.time()
-    combinations = parallelize_dataframe(combinations, partial(combinations_subset, partial(knockout_FBA, model)))
+    model = cobra.io.load_json_model(model_path)
+    end_time1 = time.time()
+    print('Model load time: %.6f seconds' % (end_time1 - start_time))
 
-    end_time = time.time()
-    print('FBA run time: %.6f seconds' % (end_time - start_time))
+    combinations = pd.read_table(combinations_path, index_col=0)
+    combinations = apply_gene_ids_to_combinations(model, SNPs_mod, combinations)
 
-    combinations.to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/test.tsv', sep='\t')
+    print("KNock out FBA runs on " + str(combinations.shape[0]) + " gene combinations, divided over " +
+          str(n_cores) + "CPU threads.")
+
+    combinations = parallelize_dataframe(combinations, partial(combinations_subset, partial(knockout_FBA, model)), n_cores)
+    end_time2 = time.time()
+    print('FBA run time: %.6f seconds' % (end_time2 - end_time1))
+
+    return combinations
+
+

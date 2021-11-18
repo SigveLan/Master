@@ -7,7 +7,7 @@ import pandas as pd
 exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all.fa'
 output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'
 
-model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/gene_names_in_model.tsv'
+model_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/model_gene_ids.tsv'
 
 model_df = pd.read_table(model_file)
 model_gene_ids = model_df['gene_name'].tolist()
