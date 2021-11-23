@@ -3,6 +3,7 @@ import numpy as np
 import cobra.flux_analysis
 from multiprocessing import Pool, cpu_count
 
+# File that contains functions pertaining to multiprocessing.
 
 def split_filter(SNP_filter, SNPs_df: pd.DataFrame) -> pd.DataFrame:
     """Applies the SNP_filter function to a given subsets of the SNP data"""
@@ -24,7 +25,7 @@ def combinations_subset(knockout_FBA, combinations: pd.DataFrame) -> pd.DataFram
 
 
 def parallelize_dataframe(df: pd.DataFrame, func, n_cores=cpu_count()) -> pd.DataFrame:
-    """Splits a dataframe into subsets and applies the given function, dividing the load over multiple cpu threads."""
+    """Splits a dataframe into subsets and applies the given function, dividing the load over multiple CPU threads."""
     df_split = np.array_split(df, n_cores)
     pool = Pool(n_cores)
     df = pd.concat(pool.map(func, df_split))

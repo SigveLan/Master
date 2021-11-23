@@ -91,6 +91,7 @@ def add_cbm_id(model_data_path: str, SNP_data: pd.DataFrame) -> pd.DataFrame:
     # It filters out genes without a number.
     df_to_tsv(joined_df, 'C:/Users/Sigve/Genome_Data/results/test.tsv')
     joined_df.dropna(subset=['gene_number'], inplace=True)
+    joined_df['amino_acid_pos'] = joined_df['amino_acid_pos'].astype(int)
 
     joined_df['gene_number'] = joined_df['gene_number'].astype(int)
     joined_df.rename(columns={'gene_number': 'model_gene_number'}, inplace=True)

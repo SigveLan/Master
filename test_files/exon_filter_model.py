@@ -1,8 +1,7 @@
 from Bio import SeqIO
 from operator import itemgetter
 import pandas as pd
-# Sorts the exons in the datafiles from ensembl. Also filters out genes not listed on vmh.life, still includes
-# some genes not in the Recon3D model.
+# Sorts the exons in the datafiles from Ensembl. Also filters out genes not in the model.
 
 exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all.fa'
 output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'

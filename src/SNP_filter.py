@@ -26,7 +26,7 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame) -> pd.DataFrame:
         if genes.empty:
             return []
 
-        # May be multiple genes
+        # Can be multiple genes that overlap
         gene_ids = genes['gene_id'].unique()
         ids = []
 

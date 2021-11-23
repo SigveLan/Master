@@ -77,7 +77,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame
         return rel_pos
 
     def translate_DNA(seq: str) -> str:
-        """Translates DNA, not currently in use, but needed for full translation"""
+        """Translates DNA, not currently in use, but needed for full translation."""
 
         len_seq = len(seq)
         translated_var_seq = []
@@ -105,7 +105,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame
 
         var = var.split('/')
         if strand == -1:
-            # The SNPs are always forward strand; needs to be reversed to get accurate result
+            # The SNPs are always forward strand; needs to be reversed to get accurate results
             var[0] = DNA_ReverseComplement[var[0]]
             var[1] = DNA_ReverseComplement[var[1]]
 
