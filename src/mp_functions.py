@@ -5,6 +5,7 @@ from multiprocessing import Pool, cpu_count
 
 # File that contains functions pertaining to multiprocessing.
 
+
 def split_filter(SNP_filter, SNPs_df: pd.DataFrame) -> pd.DataFrame:
     """Applies the SNP_filter function to a given subsets of the SNP data"""
     return SNP_filter(SNPs_df)
@@ -20,7 +21,7 @@ def knockout_FBA(model: cobra.Model, gene_ids: list) -> cobra.Solution:
 
 def combinations_subset(knockout_FBA, combinations: pd.DataFrame) -> pd.DataFrame:
     """Applies knockout_FBA to the given data subset."""
-    combinations['results'] = combinations['gene_model_ids'].apply(knockout_FBA)
+    combinations['results'] = combinations['gene_ids'].apply(knockout_FBA)
     return combinations
 
 

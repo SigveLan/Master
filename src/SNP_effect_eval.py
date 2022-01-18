@@ -117,12 +117,13 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame
         if not diff_score:
             return []
 
+        protein_len = len(translate_DNA(seq))
         var_amino_acid_pos = (SNP_pos // 3) + 1
 
         # If full translated seq is needed, uncomment below. Remember to add it to results
         #transltated_var_seq = translate_DNA(seq[:SNP_pos] + var[1] + seq[SNP_pos + 1:])
 
-        return [amino_acids[0] + "/" + amino_acids[1], var_amino_acid_pos, diff_score]
+        return [amino_acids[0] + "/" + amino_acids[1], var_amino_acid_pos, protein_len, diff_score]
 
     assembled_transcript_data = pd.DataFrame()
     current_gene = str()
@@ -149,7 +150,7 @@ def SNP_effect_eval(exons: pd.DataFrame, SNP_data: pd.DataFrame) -> pd.DataFrame
             else:
                 result_list.append(data_as_list[:6] + [transcript] + [data_as_list[7]] + ['synonymous'])
 
-    columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'score']
+    columns = SNP_data.columns.values.tolist() + ['amino_acid_change', 'amino_acid_pos', 'protein_length', 'score']
     columns[6] = 'transcript_id'
     columns[8] = 'SNP_type'
 

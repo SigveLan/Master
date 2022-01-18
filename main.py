@@ -61,7 +61,6 @@ def main():
           '\nNumber of SNPs causing amino acid change, plus affected transcripts per SNP: ' + str(SNPs_effect[0].shape[0]) +
           '\nNumber of synonymous SNPs, plus affected transcripts per SNP: ' + str(SNPs_effect[1].shape[0]))
 
-    SNPs_effect[0] = add_cbm_id(cbm_model_data_file, SNPs_effect[0])
     if write_results_to_file:
         df_to_tsv(SNPs_effect[0].drop(columns=['SNP_type']), output_file_names[3])
         df_to_tsv(SNPs_effect[1].drop(columns=['SNP_type', 'amino_acid_change', 'amino_acid_pos', 'score']), output_file_names[4])

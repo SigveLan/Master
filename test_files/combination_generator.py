@@ -10,11 +10,18 @@ def main():
 
     length = len(SNPs)
     result = {}
-    for i in range(2000):
-        sample = random.sample(range(0, length), random.randint(6, 12))
-        result[i] = ';'.join(SNPs.filter(items=sample, axis=0).iloc[:, 0].tolist())
+    for i in range(200):
+        sample = random.sample(range(0, length), random.randint(3, 9))
 
-    pd.Series(result, name='combinations').to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNP_combinations.tsv', sep='\t')
+        # Gets the SNP IDs to a list.
+        sample_SNPs = SNPs.filter(items=sample, axis=0).iloc[:, [0, 5]]
+
+        sample_SNP_ids = ';'.join(set(sample_SNPs.iloc[:, 0].tolist()))
+        # Gets the ensemble IDs to a list, and removes the version number.
+        sample_gene_ids = ';'.join(set(sample_SNPs.iloc[:, 1].apply(lambda x: x.split('.')[0]).tolist()))
+        result[i] = [sample_SNP_ids, sample_gene_ids]
+
+    pd.DataFrame.from_dict(result, orient='index', columns=["SNP_ids", "gene_ids"]).to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/SNP_combinations.tsv', sep='\t')
 
 
 if __name__ == '__main__':
