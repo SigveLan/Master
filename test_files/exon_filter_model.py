@@ -1,6 +1,8 @@
 from Bio import SeqIO
 from operator import itemgetter
 import pandas as pd
+
+
 # Sorts the exons in the datafiles from Ensembl. Also filters out genes not in the model.
 
 exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all.fa'
@@ -8,8 +10,7 @@ output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filter
 
 model_file = 'C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/genes.tsv'
 
-model_df = pd.read_table(model_file)
-model_gene_ids = model_df['genes'].tolist()
+model_gene_ids = pd.read_table(model_file)['genes'].tolist()
 
 
 chromosomes = [str(num) for num in range(1, 23)] + ['X', 'Y', 'MT']

@@ -5,7 +5,7 @@ import itertools
 import cobra.flux_analysis
 from functools import partial
 import time
-from mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA
+from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA
 
 """A file intended to be used for the model solving part instead of the jupyter notebook in the end."""
 

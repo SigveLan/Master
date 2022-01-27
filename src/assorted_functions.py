@@ -6,17 +6,25 @@ from operator import itemgetter
 def SNP_sort(SNP_file: str) -> pd.DataFrame:
     """A function for sorting SNPs by chromosome and position. Also removes duplicates and non SNP mutations,
     as well as SNPs with more than one variant base."""
+
     SNP_df = pd.read_table(SNP_file)
+    SNP_df = SNP_df[['#chr', 'pos', 'variation', 'snp_id']]
+    SNP_df = SNP_df[SNP_df['#chr'] != '#chr']
+    SNP_df.reset_index(inplace=True, drop=True)
 
-    SNP_df.drop_duplicates(subset=['Variant name'], inplace=True)
-    SNP_df.sort_values(by=['Chromosome/scaffold name', 'Chromosome/scaffold position start (bp)'], inplace=True)
-    SNP_df.set_index(['Variant name'], drop=True, inplace=True)
-    SNP_df['Variant alleles'] = SNP_df['Variant alleles'].apply(str)
-    SNP_df = SNP_df[SNP_df['Variant alleles'].str.contains("^[ACTG]/[ACTG]$")]
+    SNP_df['variation'] = SNP_df['variation'].apply(lambda x: x.split('>'))
+    SNP_df[['ancestral', 'variation']] = pd.DataFrame(SNP_df['variation'].tolist())
+    SNP_df['variation'] = SNP_df['variation'].apply(lambda x: x.split(','))
+    SNP_df = SNP_df.explode('variation', ignore_index=True)
+    SNP_df['snp_id'] = SNP_df['snp_id'].apply(lambda x: 'rs' + str(x))
+    SNP_df['variation'] = SNP_df['ancestral'] + '/' + SNP_df['variation']
+    SNP_df.drop(columns='ancestral', inplace=True)
+    SNP_df = SNP_df[['snp_id', '#chr', 'pos', 'variation']]
+    SNP_df.rename(columns={'#chr': 'chr', 'variation': 'var'}, inplace=True)
 
-    SNP_df['Chromosome/scaffold position start (bp)'] = SNP_df['Chromosome/scaffold position start (bp)'].apply(int)
-    SNP_df['Chromosome/scaffold position end (bp)'] = SNP_df['Chromosome/scaffold position end (bp)'].apply(int)
-    SNP_df['Strand'] = SNP_df['Strand'].apply(int)
+    SNP_df = SNP_df[SNP_df['var'].str.contains("^[ACTG]/[ACTG]$")]
+    SNP_df.sort_values(by=['chr'], inplace=True)
+    SNP_df.reset_index(inplace=True, drop=True)
 
     return SNP_df
 
@@ -78,7 +86,7 @@ def read_exons_to_df(exon_file_path: str) -> pd.DataFrame:
 
 
 def add_cbm_id(model_data_path: str, SNP_data: pd.DataFrame) -> pd.DataFrame:
-    """A function to add gene number from the CBM model to the SNP results."""
+    """A function to add gene number from the CBM (Recon 3D) to the SNP results."""
     model_df = pd.read_table(model_data_path)
     model_df = model_df[['gene_number', 'symbol']]
 

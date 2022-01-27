@@ -3,7 +3,7 @@ import numpy as np
 import cobra.flux_analysis
 from multiprocessing import Pool, cpu_count
 
-# File that contains functions pertaining to multiprocessing.
+# File that contains functions used for multiprocessing.
 
 
 def split_filter(SNP_filter, SNPs_df: pd.DataFrame) -> pd.DataFrame:

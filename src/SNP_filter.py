@@ -4,8 +4,7 @@ from tqdm import tqdm
 
 def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame) -> pd.DataFrame:
     """This script reads in SNPs and exon/gene data, then checks if the SNPs are located in an exon/gene.
-       Outputs two files: one with SNPs inside exons and one with SNPs inside gene-regions
-       and transcripts but not in exons."""
+       Outputs a single dataframe which is split in main."""
 
     def check_if_SNP_in_coding_region(affected_exon: pd.DataFrame, SNP_pos: int) -> bool:
         """Takes in an affected exon and checks if the SNP is within the coding region."""
@@ -56,10 +55,10 @@ def SNP_filter(exons: pd.DataFrame, SNPs: pd.DataFrame) -> pd.DataFrame:
 
     for index, SNP in tqdm(SNPs.iterrows(), total=SNPs.shape[0]):
 
-        location = check_SNP_location(SNP['Chromosome/scaffold position start (bp)'], SNP['Chromosome/scaffold name'])
+        location = check_SNP_location(SNP['pos'], SNP['chr'])
 
         for sublist in location:
-            sublist = [index, SNP['Chromosome/scaffold name'], SNP['Chromosome/scaffold position start (bp)'], SNP['Variant alleles']] + sublist
+            sublist = [SNP['snp_id'], SNP['chr'], SNP['pos'], SNP['var']] + sublist
 
             result_list.append(sublist)
 

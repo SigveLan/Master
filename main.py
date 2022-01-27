@@ -1,3 +1,5 @@
+import pandas as pd
+
 from src.SNP_filter import SNP_filter
 from src.SNP_effect_eval import SNP_effect_eval
 from src.assorted_functions import SNP_sort, read_exons_to_df, add_cbm_id, df_to_tsv, split_df_results_by_column
@@ -11,7 +13,7 @@ def main():
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
     genome_data_file = path + 'exon_model_data/exons_chrom_all_filtered.fa'
-    SNPs_file = path + 'SNP_data/SNPs_all_chrom.tsv'
+    SNPs_file = path + 'SNP_data/phewas/phewas_extracted_290.tsv'
     cbm_model_data_file = path + 'exon_model_data/recon-store-genes.tsv'
     output_file_names = [path + 'results/SNPs_coding.tsv',
                          path + 'results/SNPs_non_coding.tsv',
@@ -22,11 +24,13 @@ def main():
 
     # Settings
     write_results_to_file = True
-    n_cores = 8
+    n_cores = 4
 
     start_time = time.time()
 
-    SNPs_df = SNP_sort(SNPs_file)
+    #SNPs_df = SNP_sort(SNPs_file)
+    #SNPs_df = pd.read_table('C:/Users/Sigve/Genome_Data/SNP_data/ALS_variants/ALS_15_loci_edit.tsv', index_col=0)
+    SNPs_df = pd.read_table(SNPs_file)
     if write_results_to_file:
         df_to_tsv(SNPs_df, output_file_names[5])
 

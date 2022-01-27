@@ -10,7 +10,7 @@ def main():
 
     length = len(SNPs)
     result = {}
-    for i in range(200):
+    for i in range(2000):
         sample = random.sample(range(0, length), random.randint(3, 9))
 
         # Gets the SNP IDs to a list.
