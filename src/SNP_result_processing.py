@@ -5,7 +5,7 @@ from src.assorted_functions import df_to_tsv
 
 path = 'C:/Users/Sigve/Genome_Data/'
 
-SNP_file = path + 'results/SNPs_non_synonymous.tsv'
+SNP_file = path + 'results/SNPs_missense.tsv'
 SNP_df = pd.read_table(SNP_file)
 
 # Keep first duplicate value

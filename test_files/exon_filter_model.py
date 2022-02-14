@@ -5,8 +5,8 @@ import pandas as pd
 
 # Sorts the exons in the datafiles from Ensembl. Also filters out genes not in the model.
 
-exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all.fa'
-output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_chrom_all_filtered.fa'
+exon_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_pc_ensembl_canonical.fa'
+output_file = 'C:/Users/Sigve/Genome_Data/exon_model_data/exons_pc_ensembl_canonical_filtered.fa'
 
 model_file = 'C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/genes.tsv'
 

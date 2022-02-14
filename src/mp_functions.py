@@ -15,7 +15,10 @@ def knockout_FBA(model: cobra.Model, gene_ids: list) -> cobra.Solution:
     """Knock out FBA of given combination of genes."""
     with model:
         for gene_id in gene_ids:
-            model.genes.get_by_id(gene_id).knock_out()
+            try:
+                model.genes.get_by_id(gene_id).knock_out()
+            except KeyError:
+                return gene_id + ' not in model.'
         return model.optimize()
 
 
