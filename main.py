@@ -13,7 +13,7 @@ def main():
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
     genome_data_file = path + 'exon_model_data/exons_pc_ensembl_canonical_filtered.fa'
-    SNPs_file = path + 'SNP_data/phewas/phewas_extracted_all.tsv'
+    SNPs_file = path + 'SNP_data/1000_genomes/result_chrom_22_snps.tsv'
     cbm_model_data_file = path + 'exon_model_data/recon-store-genes.tsv'
     output_file_names = [path + 'results/SNPs_coding.tsv',
                          path + 'results/SNPs_non_coding.tsv',
@@ -62,7 +62,7 @@ def main():
     # Split into synonymous and non-synonymous SNPs
     SNPs_effect = split_df_results_by_column(SNPs_effect, 'SNP_type', ['non_synonymous', 'synonymous'])
     print('SNP effect evaluation time: %.6f seconds' % (end_time3 - end_time2) +
-          '\nNumber of SNPs causing amino acid change, divided by base change: ' + str(SNPs_effect[0].shape[0]) +
+          '\nNumber of SNPs causing amino acid change: ' + str(SNPs_effect[0].shape[0]) +
           '\nNumber of synonymous SNPs: ' + str(SNPs_effect[1].shape[0]))
 
     if write_results_to_file:
