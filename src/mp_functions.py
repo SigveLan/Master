@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import cobra.flux_analysis
+from cobra import Metabolite
 from multiprocessing import Pool, cpu_count
 
 # File that contains functions used for multiprocessing.
@@ -20,6 +21,49 @@ def knockout_FBA(model: cobra.Model, gene_ids: list) -> cobra.Solution:
             except KeyError:
                 return gene_id + ' not in model.'
         return model.optimize()
+
+
+def knockout_FBA_w_tasks(tasks_df: pd.DataFrame, model_list: list, gene_ids: list) -> list:
+    """Performs knockout FBA and checks tasks for the knockout."""
+    with model_list[0]:
+        for gene_id in gene_ids:
+            try:
+                model_list[0].genes.get_by_id(gene_id).knock_out()
+            except KeyError:
+                return gene_id + ' not in model.'
+        res = [model_list[0].optimize().objective_value]
+
+    for ind, data in tasks_df.iterrows():
+        t_model = model_list[data.model_num]
+
+        with t_model:
+            for subset in [data.in_rx, data.out_rx]:
+                for rx in subset:
+                    if rx == 'ALLMETSIN':
+                        # Adds boundary metabolites for other reactions when ALLMETSIN is used
+                        for r in subset[1:]:
+                            for m2 in r.metabolites:
+                                for r2 in m2.reactions:
+                                    if r2.boundary and r2.id != r.id:
+                                        r2.add_metabolites({Metabolite(
+                                                            m2.id[:-4] + 'x[x]',
+                                                            formula=m2.formula,
+                                                            name=' '.join(m2.name.split(' ')[:-1]) + ' [Boundary]',
+                                                            compartment='x'): 1})
+                        continue
+                    t_model.add_reaction(rx)
+
+            if data.equ != 'nan':
+                t_model.add_reaction(data.equ)
+
+            for gene_id in gene_ids:
+                t_model.genes.get_by_id(gene_id).knock_out()
+
+            if t_model.optimize().objective_value is None:
+                res.append(0)
+            else:
+                res.append(1)
+    return res
 
 
 def combinations_subset(knockout_FBA, combinations: pd.DataFrame) -> pd.DataFrame:
