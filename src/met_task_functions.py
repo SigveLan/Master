@@ -1,9 +1,11 @@
 import cobra
 import pandas as pd
+from functools import partial
 from cobra import Metabolite, Reaction
 
 
 def get_met_ids(model_list: list, task: pd.Series) -> list:
+    """Find model metabolite objects from task metabolites"""
 
     comps = {'s': 'Extracellular',
              'p': 'Peroxisome',
@@ -28,6 +30,8 @@ def get_met_ids(model_list: list, task: pd.Series) -> list:
     if any(met[:-3] == 'ALLMETSIN' for met in met_list[0]):
         model_num = 2
     if any(met[:-3] == 'ALLMETSIN' for met in met_list[1]):
+        if model_num == 2:
+            raise ValueError("'ALLMETSIN' cannot be in both input and output.")
         model_num = 3
 
     met_ids = {}
@@ -86,8 +90,10 @@ def constrain_model(model: cobra.Model, ALLMETSIN:bool = False) -> list:
 
     return md_list
 
+
 def create_reactions(tasks: pd.DataFrame) -> pd.DataFrame:
-    # Producing reactions based on tasks
+    """Producing reactions based on tasks."""
+
     rx_list = []
     in_list = []
     out_list = []
@@ -119,9 +125,9 @@ def create_reactions(tasks: pd.DataFrame) -> pd.DataFrame:
             t = [[data['met_ids'][subsub] for subsub in sub.split(' ') if len(subsub) > 1] for sub in data.equations.split('=')]
             d = {}
 
-            for i, ml in zip([-1, 1], t):
-                for m in ml:
-                    d[m] = i
+            for i, met_list in zip([-1, 1], t):
+                for met in met_list:
+                    d[met] = i
 
             rx = Reaction('ess_{0}'.format(ind + 1))
             rx.add_metabolites(d)
@@ -134,7 +140,28 @@ def create_reactions(tasks: pd.DataFrame) -> pd.DataFrame:
         else:
             rx_list.append('nan')
 
-    return pd.DataFrame(list(zip(in_list, out_list, rx_list, tasks['model_num'].tolist())), columns=['in_rx', 'out_rx', 'equ', 'model_num'])
+    return pd.DataFrame(list(zip(in_list, out_list, rx_list, tasks['model_num'].tolist())),
+                        columns=['in_rx', 'out_rx', 'equ', 'model_num'])
 
+
+def read_tasks(file_path: str, model_list: list) -> list:
+    """Reads in metabolic tasks from a file, make sure the entries are in the correct form.
+    Returns a list of lists containing reactions to be added to the model for each task."""
+
+    tasks_df = pd.read_table(file_path)
+
+    for b in ['LBin', 'LBout', 'UBin', 'UBout']:
+        tasks_df[b] = tasks_df[b].apply(lambda x: x.split(','))
+
+    for put in ['inputs', 'outputs']:
+        tasks_df[put] = tasks_df[put].apply(lambda x: [e + ']' for e in x[1:-1].split(']')][0:-1])
+
+    tasks_df['equations'] = tasks_df['equations'].apply(str)
+
+    tasks_df[['met_ids', 'model_num']] = tasks_df.apply(partial(get_met_ids, model_list), axis=1, result_type='expand')
+
+    tasks_df = create_reactions(tasks_df)
+
+    return list(tasks_df.values.tolist())
 
 

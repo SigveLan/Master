@@ -4,7 +4,7 @@ import itertools
 
 
 def main():
-    """A script that generates a number of random combinations of a number of SNPs."""
+    """A script that generates a number of random or extensive combinations of a number of SNPs."""
 
     file_path = 'C:/Users/Sigve/Genome_Data/results/SNPs_for_FBA.tsv'
     SNPs = pd.read_table(file_path, index_col=0)

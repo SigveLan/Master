@@ -13,14 +13,12 @@ def main():
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
     genome_data_file = path + 'exon_model_data/exons_pc_ensembl_canonical_filtered.fa'
-    SNPs_file = path + 'SNP_data/phewas/phewas_extracted_290.tsv'
-    cbm_model_data_file = path + 'exon_model_data/recon-store-genes.tsv'
+    SNPs_file = path + 'SNP_data/1000_genomes/result_chrom_22_snps.tsv'
     output_file_names = [path + 'results/SNPs_coding.tsv',
                          path + 'results/SNPs_non_coding.tsv',
                          path + 'results/SNPs_transcript_non_coding.tsv',
                          path + 'results/SNPs_missense.tsv',
-                         path + 'results/SNPs_synonymous.tsv',
-                         path + 'SNP_data/SNPs_sorted.tsv']
+                         path + 'results/SNPs_synonymous.tsv']
 
     # Settings
     write_results_to_file = True
@@ -28,13 +26,9 @@ def main():
 
     start_time = time.time()
 
-    #SNPs_df = SNP_sort(SNPs_file)
-    #SNPs_df = pd.read_table('C:/Users/Sigve/Genome_Data/SNP_data/ALS_variants/ALS_15_loci_edit.tsv', index_col=0)
     SNPs_df = pd.read_table(SNPs_file)
-    if write_results_to_file:
-        df_to_tsv(SNPs_df, output_file_names[5])
-
     exons = read_exons_to_df(genome_data_file)
+
     end_time1 = time.time()
     print('Exons and SNP data loading time: %.6f seconds.' % (end_time1-start_time))
 
