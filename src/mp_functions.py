@@ -56,6 +56,7 @@ def knockout_FBA_w_tasks(task_list: list, model_list: list, gene_ids: list) -> l
                             for m2 in r.metabolites:
                                 for r2 in m2.reactions:
                                     if r2.boundary and r2.id != r.id:
+                                        # Could also just remove the reactions, or set them 0, 0
                                         r2.add_metabolites({Metabolite(
                                                             m2.id[:-4] + 'x[x]',
                                                             formula=m2.formula,

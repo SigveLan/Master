@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.SNP_filter import SNP_filter
 from src.SNP_effect_eval import SNP_effect_eval
-from src.assorted_functions import SNP_sort, read_exons_to_df, add_cbm_id, df_to_tsv, split_df_results_by_column
+from src.assorted_functions import read_exons_to_df, df_to_tsv, split_df_results_by_column
 from src.mp_functions import parallelize_dataframe, split_filter
 import time
 from functools import partial
@@ -13,7 +13,7 @@ def main():
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
     genome_data_file = path + 'exon_model_data/exons_pc_ensembl_canonical_filtered.fa'
-    SNPs_file = path + 'SNP_data/1000_genomes/result_chrom_22_snps.tsv'
+    SNPs_file = path + 'SNP_data/1000_genomes/SNP_results_all_chrom.tsv'
     output_file_names = [path + 'results/SNPs_coding.tsv',
                          path + 'results/SNPs_non_coding.tsv',
                          path + 'results/SNPs_transcript_non_coding.tsv',
@@ -22,11 +22,12 @@ def main():
 
     # Settings
     write_results_to_file = True
-    n_cores = 4
+    n_cores = 8
 
     start_time = time.time()
 
     SNPs_df = pd.read_table(SNPs_file)
+
     exons = read_exons_to_df(genome_data_file)
 
     end_time1 = time.time()
