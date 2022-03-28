@@ -59,8 +59,11 @@ def get_met_ids(model_list: list, task: pd.Series) -> list:
     return [met_ids, model_num]
 
 
-def constrain_model(model: cobra.Model, ALLMETSIN:bool = False) -> list:
+def constrain_model(model_path: str, ALLMETSIN_IN:bool = False, ALLMETSIN_OUT:bool = False) -> list:
+    """Produces models for FBA, including models for task runs.
+    ALLMETSIN_IN/OUT is for whether ALLMETSIN is used in upper or lower constraints"""
 
+    model = cobra.io.read_sbml_model(model_path)
     bound_model = model.copy()
     bound_model.name = 'bound_model'
 
@@ -72,21 +75,25 @@ def constrain_model(model: cobra.Model, ALLMETSIN:bool = False) -> list:
 
     md_list = [model, bound_model]
 
-    if ALLMETSIN:
-
+    if ALLMETSIN_IN:
         ub_model = model.copy()
         ub_model.name = "upper_bound_exchanges_model"
         for rx in ub_model.exchanges:
             rx.lower_bound = -1000
             rx.upper_bound = 0
         md_list.append(ub_model)
+    else:
+        md_list.append(None)
 
+    if ALLMETSIN_OUT:
         lb_model = model.copy()
         lb_model.name = "lower_bound_exchanges_model"
         for rx in lb_model.exchanges:
             rx.lower_bound = 0
             rx.upper_bound = 1000
         md_list.append(lb_model)
+    else:
+        md_list.append(None)
 
     return md_list
 

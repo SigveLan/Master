@@ -1,14 +1,9 @@
-import itertools
 import pandas as pd
 import cobra.flux_analysis
-from cobra import Metabolite, Reaction, Model
 import time
-import numpy as np
-from functools import partial
-from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA, knockout_FBA_w_tasks
 
 from functools import partial
-from src.met_task_functions import get_met_ids, constrain_model, create_reactions
+from src.FBA_scripts.met_task_functions import get_met_ids, constrain_model, create_reactions
 
 
 def main ():

@@ -1,0 +1,41 @@
+
+Execution flow (using individual data):
+- Downloading and filtering exon data: exon_filter_model.py
+
+- Using the exon data to filter out SNPs for vcf files: vcf_reader.py
+    - Requires Linux
+
+- Combine all SNPs to single file: snps_combine.py
+- Running the main SNP filter: main.py
+- Extracting individual data for all missense SNPs (or other SNPs, depending): fetch_ind_data.py
+    - Requires Linux
+
+- Produce combinations: individual_combinations.py
+
+- Next run FBA with the combinations. For doing it with tasks use FBA_with_tasks.py
+    - Can select number of tissues
+    - Select filter for (non)essential genes. non essential genes that have been task filtered will need to be
+      prepared beforehand, preferably with MATLAB as it is faster. Can also use cobra.analysis.find_essential_genes to
+      get genes that produces zero as solution when knocked out.
+
+- Finally, interesting results can be filtered out with filter_results.py
+
+
+Using general SNP data is also possible. This will then just be lists of SNPs.
+- Do the same with downloading and filtering exon data: exon_filter_model.py
+
+- Then run the main SNP filter: main.py
+    - You might need to clean up the SNP data a bit for this to work,
+      making sure the columns have correct labels and such
+
+- The results will then need to be filtered for affected genes using test_files.SNP_result_processing.py
+    - This gets all genes that have been affected by at least one SNP
+- The affected genes are then use to produce combinations using combination_generator.py
+    - There are two options here
+        - Extensive combinations, which produces all combinations of certain sizes, ex: all size 3 and 4 combinations
+          NB: produces large numbers of combinations
+
+        - Random combinations, which will be a set number of combinations within a range of sizes,
+          ex: 200 combinations with sizes ranging from 3 to 6.
+
+- Combinations can then be used to run FBA as above, with results being of the same format.
