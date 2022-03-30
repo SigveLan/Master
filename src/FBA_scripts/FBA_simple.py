@@ -4,7 +4,7 @@ import cobra.io
 import pandas as pd
 from functools import partial
 
-from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA
+from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA_simple
 
 """Script for simple FBA. Be sure to change file in-/out-put names!"""
 
@@ -39,16 +39,16 @@ def main():
         results = results[results['gene_ids'].map(lambda x: len(x)) > 0]
 
         # Actual FBA
-        results = parallelize_dataframe(results, partial(combinations_subset, partial(knockout_FBA, model)), n_cores=12)
+        results = parallelize_dataframe(results, partial(combinations_subset, partial(knockout_FBA_simple, model)), n_cores=12)
 
-        results.loc[-1] = ['REF', [], knockout_FBA(model, [])]
+        results.loc[-1] = ['REF', [], knockout_FBA_simple(model, [])]
 
         # Put REF on top
         results.index = results.index + 1  # shifting index
         results.sort_index(inplace=True)
 
         results['gene_ids'] = results['gene_ids'].apply(';'.join)
-        results['solution'] = results['results'].apply(lambda x: round(x[0], 3))
+        results['solution'] = results['results'].apply(lambda x: round(x, 3))
 
         results.reset_index(inplace=True, drop=True)
         results[['sample_ids', 'gene_ids', 'solution']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/extensive/HG03385_{0}_res.tsv'.format(tissue), sep='\t')
