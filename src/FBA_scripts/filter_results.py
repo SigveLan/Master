@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def main():
-    tissue_list = ['liver'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['lung'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 
     for tissue in tissue_list:
 
@@ -26,7 +26,7 @@ def main():
         if non_nom.shape[0] == 0:
             continue
         # Add gene_ids below to include them.
-        non_nom[['sample_ids', 'solution', 'tasks_results', 'gene_ids']].to_csv(path_or_buf=output_file, sep='\t')
+        non_nom[['sample_ids', 'solution', 'tasks_results']].to_csv(path_or_buf=output_file, sep='\t')
 
 
 if __name__ == '__main__':

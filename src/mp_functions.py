@@ -34,15 +34,10 @@ def knockout_FBA_simple(model: cobra.Model, gene_ids: list) -> float:
         return model.slim_optimize(error_value='nan')
 
 
-def knockout_FBA_w_tasks(task_list: list, model_list: list, gene_ids: list) -> list:
-    """Performs knockout FBA and checks tasks for the knockout."""
-    with model_list[0]:
-        for gene_id in gene_ids:
-            try:
-                model_list[0].genes.get_by_id(gene_id).knock_out()
-            except KeyError:
-                return gene_id + ' not in model.'
-        res = [model_list[0].slim_optimize()]
+def knockout_FBA_w_tasks(task_list: list, model_list: list, combinations_df: pd.DataFrame) -> pd.DataFrame:
+    """Function for performing FBA with tasks."""
+
+    combinations_df['solution'] = combinations_df['gene_ids'].apply(lambda x: round(knockout_FBA_simple(model_list[0], x), 3))
 
     for task in task_list:
         t_model = model_list[task[3]]
@@ -58,24 +53,24 @@ def knockout_FBA_w_tasks(task_list: list, model_list: list, gene_ids: list) -> l
                                     if r2.boundary and r2.id != r.id:
                                         # Could also just remove the reactions, or set them 0, 0
                                         r2.add_metabolites({Metabolite(
-                                                            m2.id[:-4] + 'x[x]',
-                                                            formula=m2.formula,
-                                                            name=' '.join(m2.name.split(' ')[:-1]) + ' [Boundary]',
-                                                            compartment='x'): 1})
+                                            m2.id[:-4] + 'x[x]',
+                                            formula=m2.formula,
+                                            name=' '.join(m2.name.split(' ')[:-1]) + ' [Boundary]',
+                                            compartment='x'): 1})
                         continue
                     t_model.add_reaction(rx)
 
             if task[2] != 'nan':
                 t_model.add_reaction(task[2])
 
-            for gene_id in gene_ids:
-                t_model.genes.get_by_id(gene_id).knock_out()
+            # Actual FBA
+            combinations_df['results'] = combinations_df['gene_ids'].apply(lambda x: knockout_FBA_simple(t_model, x))
 
-            if t_model.slim_optimize(error_value='nan') == 'nan':
-                res += [0]
-            else:
-                res += [1]
-    return res
+            # Convert results to 1 or 0 if the task passes or not
+            combinations_df['tasks_results'] = combinations_df[['tasks_results', 'results']].apply(
+                lambda x: x['tasks_results'] + [1] if x['results'] != 'nan' else x['tasks_results'] + [0], axis=1)
+
+    return combinations_df[['sample_ids', 'gene_ids', 'solution', 'tasks_results']]
 
 
 def combinations_subset(FBA_func, combinations: pd.DataFrame) -> pd.DataFrame:
