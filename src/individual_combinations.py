@@ -8,7 +8,7 @@ single entry; For larger number of SNPs, combinations are virtually guaranteed t
 def main():
 
     ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/all_missense_ind_data.tsv', index_col=0)
-    output_file = 'C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb.tsv'
+    output_file = 'C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv'
 
     # Can filter here (currently filtered fir SNPs affecting start/stop codons).
     if True:
@@ -24,7 +24,7 @@ def main():
             continue
 
         # For hetero-zygote: set '> 1' to '> 0'.
-        res_dict[column] = [';'.join(ind_data['variant_name'][ind_data[column] > 1].to_list()), ';'.join(set([i.split('.')[0] for i in ind_data['gene_id'][ind_data[column] > 1].to_list()]))]
+        res_dict[column] = [';'.join(ind_data['variant_name'][ind_data[column] > 0].to_list()), ';'.join(set([i.split('.')[0] for i in ind_data['gene_id'][ind_data[column] > 0].to_list()]))]
 
     results = pd.DataFrame.from_dict(res_dict, orient='index', columns=['snp_list', 'gene_ids'])
     t = results.reset_index().groupby(by='gene_ids')[['index', 'gene_ids']].agg(set).reset_index(drop=True)
