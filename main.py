@@ -10,6 +10,8 @@ from functools import partial
 
 def main():
 
+    """This main function only pertains to the SNP filtering part of the pipeline."""
+
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
     genome_data_file = path + 'exon_model_data/exons_pc_ensembl_canonical_filtered.fa'

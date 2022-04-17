@@ -12,8 +12,8 @@ def main():
 
     for tissue in tissue_list:
 
-        input_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het/ind_{0}.tsv'.format(tissue)
-        output_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/ind_results_f_{0}.tsv'.format(tissue)
+        input_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het_inc_ess/ind_{0}.tsv'.format(tissue)
+        output_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het_inc_ess/ind_results_f_{0}.tsv'.format(tissue)
 
         res = pd.read_table(input_file, index_col=0)
         res['tasks_results'] = res['tasks_results'].apply(lambda x: [int(i) for i in x[1:-1].split(', ')] if x[2:-2] != 'ALL PASS' else ['ALL PASS'])

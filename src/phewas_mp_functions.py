@@ -28,7 +28,7 @@ def combination_generation(temp_dfs: np.ndarray) -> pd.DataFrame:
         combinations_subset = (combinations_subset.groupby('gene_ids').agg({'snp_ids': lambda x: x.tolist()})).reset_index()
         combinations_subset['phewas_code'] = code
 
-        combinations_subset= combinations_subset[['phewas_code', 'gene_ids', 'snp_ids']]
+        combinations_subset = combinations_subset[['phewas_code', 'gene_ids', 'snp_ids']]
         combinations_df = pd.concat([combinations_df, combinations_subset]).reset_index(drop=True)
 
     return combinations_df

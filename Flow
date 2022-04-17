@@ -13,10 +13,10 @@ Execution flow (using individual data):
 - Produce combinations: individual_combinations.py
 
 - Next run FBA with the combinations. For doing it with tasks use FBA_with_tasks.py
-    - Can select number of tissues
+    - Select which tissues to run
     - Select filter for (non)essential genes. non essential genes that have been task filtered will need to be
       prepared beforehand, preferably with MATLAB as it is faster. Can also use cobra.analysis.find_essential_genes to
-      get genes that produces zero as solution when knocked out.
+      get genes that produces zero as solution when knocked out. This will however not get genes essential to tasks.
 
 - Finally, interesting results can be filtered out with filter_results.py
 
