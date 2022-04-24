@@ -13,16 +13,27 @@ def main():
 
     start_time = time.time()
 
-    tissue_list = ['pancreas'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['brain', 'nerve', 'pituitary'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
     tissue_list.sort()
 
-    ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv', index_col=0)
-    ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x[2:-2].split(';'))
+    individual = False
+    if individual:
+        ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv', index_col=0)
+        ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x[2:-2].split(';'))
 
-    # Just for cleanup, not necessary for functions
-    ind_data['sample_ids'] = ind_data['sample_ids'].apply(lambda x: ';'.join(x[2:-2].split("', '")))
+        # Just for cleanup, not necessary for functions
+        ind_data['sample_ids'] = ind_data['sample_ids'].apply(lambda x: ';'.join(x[2:-2].split("', '")))
 
-    ind_data = ind_data.iloc[0:10, :]
+    else:
+        # For phewas data
+        phewas_code = '253'
+
+        ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/phewas_results/combinations/SNP_combinations_phewas_4_5.tsv', index_col=0)
+        ind_data.rename(columns={'phewas_code': 'sample_ids'}, inplace=True)
+        ind_data['sample_ids'] = ind_data['sample_ids'].apply(str)
+        ind_data = ind_data[ind_data['sample_ids'].map(lambda x: x.split('.')[0] == phewas_code)]
+        ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x.split(';'))
+
 
     # Filter out essential genes:
     essential = False
@@ -42,7 +53,7 @@ def main():
             # Use all genes instead; needed because not all tissues have the same genes.
             genes = [gene.id for gene in model_list[0].genes]
 
-        results = ind_data.copy()
+        results = ind_data[['sample_ids', 'gene_ids']].copy()
         results['gene_ids'] = results['gene_ids'].apply(lambda x: list(set(x).intersection(genes)))
         results = results[results['gene_ids'].map(lambda x: len(x)) > 0]
 
@@ -56,13 +67,13 @@ def main():
         results.sort_index(inplace=True)
 
         # Actual FBA
-        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores=2)
+        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores=1)
 
         results['gene_ids'] = results['gene_ids'].apply(';'.join)
         results['tasks_results'] = results['tasks_results'].apply(lambda x: x if not all(x) else ['ALL PASS'])
 
         results.reset_index(inplace=True, drop=True)
-        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het_inc_ess/ind_{0}_TEST_2.tsv'.format(tissue), sep='\t')
+        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/phewas_results/FBA_results/phewas_code_253_{0}_4_5.tsv'.format(tissue), sep='\t')
 
     end_time = time.time()
 

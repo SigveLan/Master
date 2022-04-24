@@ -2,7 +2,7 @@ import pandas as pd
 
 """Produces individual combinations based on individual data. Possible to add SNP filter here as well, so only 
 certain SNPs are included. Can also choose between homo- and hetero-zygote. Also combines identical combinations to 
-single entry; For larger number of SNPs, combinations are virtually guaranteed to be unique."""
+single entry. For larger number of SNPs, combinations are virtually guaranteed to be unique."""
 
 
 def main():

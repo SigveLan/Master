@@ -86,7 +86,7 @@ def read_exons_to_df(exon_file_path: str) -> pd.DataFrame:
 
 
 def add_cbm_id(model_data_path: str, SNP_data: pd.DataFrame) -> pd.DataFrame:
-    """A function to add gene number from the CBM (Recon 3D) to the SNP results."""
+    """NO LONGER IN USE. A function to add gene number from the CBM (Recon 3D) to the SNP results."""
     model_df = pd.read_table(model_data_path)
     model_df = model_df[['gene_number', 'symbol']]
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from src.phewas_mp_functions import phewas_parallelization, combination_generation
+from depricated.phewas_mp_functions import phewas_parallelization, combination_generation
 
 
 def main():
