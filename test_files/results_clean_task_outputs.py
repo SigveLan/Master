@@ -3,8 +3,8 @@ import pandas as pd
 
 # make clean outputs. Flips results sideways so it is easy to see which tasks failed.
 
-tissue_list = ['brain']#['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood',
-               #'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+tissue_list = ['brain', 'pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood',
+               'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 tissue_list.sort()
 
 for tissue in tissue_list:

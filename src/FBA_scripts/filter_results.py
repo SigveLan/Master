@@ -5,8 +5,8 @@ import pandas as pd
 
 def main():
 
-    tissue_list = ['brain'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain',
-                   #'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['brain', 'pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood',
+                   'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 
     tissue_list.sort()
 

@@ -13,7 +13,7 @@ def main():
 
     start_time = time.time()
 
-    tissue_list = ['liver', 'kidney', 'pancreas', 'spleen'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['heart', 'blood', 'thyroid', 'muscle', 'lung', 'adipose_tissue', 'adrenal_gland'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
     tissue_list.sort()
 
     individual = True

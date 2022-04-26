@@ -14,9 +14,9 @@ def main():
 
     for tissue in tissue_list:
 
-        gene = 'ENSG00000165029'
+        gene = 'ENSG00000105220'
 
-        fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/selected_results/{0}.tsv'.format(gene), index_col=0)
+        fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/full_tasks/selected_results/{0}.tsv'.format(gene), index_col=0)
 
         fba_filter_res['sample_ids'] = fba_filter_res['sample_ids'].apply(lambda x: x.split(';'))
         fba_filter_res['gene_ids'].iat[0] = ''
@@ -42,7 +42,7 @@ def main():
             res_list.append(res_dict)
 
         fba_filter_res['variants'] = pd.Series(res_list)
-        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/selected_results/{0}.tsv'.format(gene), sep='\t')
+        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/full_tasks/selected_results/{0}.tsv'.format(gene), sep='\t')
 
 
 if __name__ == '__main__':
