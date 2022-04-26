@@ -5,9 +5,9 @@ def main():
     """Get samples with specific genes"""
 
     tissue = 'pancreas'
-    target_genes = ['ENSG00000125246']
+    target_genes = ['ENSG00000183077']
 
-    fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/ind_results_f_{0}.tsv'.format(tissue), index_col=0)
+    fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het_inc_ess/ind_results_f_{0}.tsv'.format(tissue), index_col=0)
 
     fba_filter_res['gene_ids'].iat[0] = ''
 
@@ -26,8 +26,8 @@ def main():
     print(fba_filter_res)
 
     fba_filter_res.to_csv(
-        path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/ind_results_f_{0}_selected.tsv'.format(
-            tissue), sep='\t')
+        path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het_inc_ess/selected_results/{0}.tsv'.format(
+            target_genes[0]), sep='\t')
 
 
 if __name__ == '__main__':

@@ -8,19 +8,24 @@ def main():
     ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/all_missense_ind_data.tsv', index_col=0)
     ind_data['gene_id'] = ind_data['gene_id'].apply(lambda x: x.split('.')[0])
 
-    tissue_list = ['muscle'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['liver'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 
     tissue_list.sort()
 
     for tissue in tissue_list:
 
-        fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/all_homozygote/subcombs/result_test_NA20908_sel_{0}_t.tsv'.format(tissue), index_col=0)
+        gene = 'ENSG00000165029'
+
+        fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/selected_results/{0}.tsv'.format(gene), index_col=0)
 
         fba_filter_res['sample_ids'] = fba_filter_res['sample_ids'].apply(lambda x: x.split(';'))
         fba_filter_res['gene_ids'].iat[0] = ''
 
         fba_filter_res['gene_ids'] = fba_filter_res['gene_ids'].apply(lambda x: x.split(';'))
         fba_filter_res = fba_filter_res.explode('sample_ids', ignore_index=True)
+
+        # For selected gene, remove if to process as it in file.
+        fba_filter_res['gene_ids'] = fba_filter_res['gene_ids'].apply(lambda x: [gene])
 
         res_list = [{'NaN': ';'}]
         for i, data in fba_filter_res.iterrows():
@@ -37,7 +42,7 @@ def main():
             res_list.append(res_dict)
 
         fba_filter_res['variants'] = pd.Series(res_list)
-        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/all_homozygote/subcombs/result_test_NA20908_sel_{0}_t.tsv'.format(tissue), sep='\t')
+        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/selected_results/{0}.tsv'.format(gene), sep='\t')
 
 
 if __name__ == '__main__':

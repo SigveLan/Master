@@ -13,10 +13,10 @@ def main():
 
     start_time = time.time()
 
-    tissue_list = ['brain', 'nerve', 'pituitary'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['liver', 'kidney', 'pancreas', 'spleen'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
     tissue_list.sort()
 
-    individual = False
+    individual = True
     if individual:
         ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv', index_col=0)
         ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x[2:-2].split(';'))
@@ -36,12 +36,12 @@ def main():
 
 
     # Filter out essential genes:
-    essential = False
+    essential = True
 
     for tissue in tissue_list:
 
         # Load models. Multiple instances are needed to do both regular and task FBA.
-        model_list = constrain_model('C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/GTEx/{0}.xml'.format(tissue), ALLMETSIN_OUT=True)
+        model_list = constrain_model('C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/GTEx/{0}.xml'.format(tissue), ALLMETSIN_OUT=False)
 
         # If inputs should be filtered by essential genes.
         if essential:
@@ -57,7 +57,8 @@ def main():
         results['gene_ids'] = results['gene_ids'].apply(lambda x: list(set(x).intersection(genes)))
         results = results[results['gene_ids'].map(lambda x: len(x)) > 0]
 
-        task_list = read_tasks('C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/tasks/essential_tasks_min_ess_aa.tsv', model_list)
+        task_file_path = 'C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/tasks/tissue_full_tasks/full_tasks_minus_ess_{0}.tsv'.format(tissue)
+        task_list = read_tasks(task_file_path, model_list)
         # Adds empty task result list column
         results['tasks_results'] = np.empty((len(results), 0)).tolist()
 
@@ -67,13 +68,13 @@ def main():
         results.sort_index(inplace=True)
 
         # Actual FBA
-        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores=1)
+        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores=12)
 
         results['gene_ids'] = results['gene_ids'].apply(';'.join)
         results['tasks_results'] = results['tasks_results'].apply(lambda x: x if not all(x) else ['ALL PASS'])
 
         results.reset_index(inplace=True, drop=True)
-        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/phewas_results/FBA_results/phewas_code_253_{0}_4_5.tsv'.format(tissue), sep='\t')
+        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het/full_tasks/start_stop_het_{0}.tsv'.format(tissue), sep='\t')
 
     end_time = time.time()
 

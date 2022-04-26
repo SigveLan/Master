@@ -5,15 +5,15 @@ import pandas as pd
 
 def main():
 
-    tissue_list = ['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain',
-                   'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['brain'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain',
+                   #'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 
     tissue_list.sort()
 
     for tissue in tissue_list:
 
-        input_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het_inc_ess/ind_{0}.tsv'.format(tissue)
-        output_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het_inc_ess/ind_results_f_{0}.tsv'.format(tissue)
+        input_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het/full_tasks/start_stop_het_{0}.tsv'.format(tissue)
+        output_file = 'C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/full_tasks/ind_results_f_{0}.tsv'.format(tissue)
 
         res = pd.read_table(input_file, index_col=0)
         res['tasks_results'] = res['tasks_results'].apply(lambda x: [int(i) for i in x[1:-1].split(', ')] if x[2:-2] != 'ALL PASS' else ['ALL PASS'])

@@ -53,8 +53,9 @@ def get_met_ids(model_list: list, task: pd.Series) -> list:
                         met_ids[met] = m
                         break
                 else:
+                    print('\nFailed to find metabolite: ' + temp + '. Skipping task: ' + str(task.iat[0]) + ': ' + task.iat[1])
+                    return [{}, -1]
                     # Failed to find
-                    raise ValueError("Failed to find metabolite for met_name: " + temp)
 
     return [met_ids, model_num]
 
@@ -155,7 +156,9 @@ def read_tasks(file_path: str, model_list: list) -> list:
     """Reads in metabolic tasks from a file, make sure the entries are in the correct form.
     Returns a list of lists containing reactions to be added to the model for each task."""
 
-    tasks_df = pd.read_table(file_path)
+    tasks_df = pd.read_table(file_path, dtype={'description': str, 'inputs': str, 'LBin': str, 'UBin': str,
+                                               'outputs': str, 'LBout': str, 'UBout': str, 'equations': str,
+                                               'LBequ': float, 'UBequ': float})
 
     for b in ['LBin', 'LBout', 'UBin', 'UBout']:
         tasks_df[b] = tasks_df[b].apply(lambda x: x.split(','))
@@ -166,6 +169,7 @@ def read_tasks(file_path: str, model_list: list) -> list:
     tasks_df['equations'] = tasks_df['equations'].apply(str)
 
     tasks_df[['met_ids', 'model_num']] = tasks_df.apply(partial(get_met_ids, model_list), axis=1, result_type='expand')
+    tasks_df = tasks_df[tasks_df['model_num'].map(lambda x: x != -1)].reset_index(drop=True)
 
     tasks_df = create_reactions(tasks_df)
 
