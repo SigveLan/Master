@@ -6,48 +6,60 @@ from functools import partial
 from src.mp_functions import parallelize_dataframe, knockout_FBA_w_tasks
 from src.FBA_scripts.met_task_functions import read_tasks, constrain_model
 
-"""Script for FBA with tasks. Be sure to change file in- and output names!"""
+"""Script for FBA with tasks. Be sure to change file in- and output names, as well as core count!"""
 
 
 def main():
 
     start_time = time.time()
 
-    tissue_list = ['heart', 'blood', 'thyroid', 'muscle', 'lung', 'adipose_tissue', 'adrenal_gland'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung', 'skin', ]
     tissue_list.sort()
+
+    n_cores = 13
+    path = 'C:/Users/Sigve/Genome_Data/results/'
+    input_file = path + 'ind_combinations/start_stop_comb.tsv'
+
+    # Filter out essential genes:
+    essential = True
 
     individual = True
     if individual:
-        ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv', index_col=0)
+        ind_data = pd.read_table(input_file, index_col=0)
         ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x[2:-2].split(';'))
 
         # Just for cleanup, not necessary for functions
         ind_data['sample_ids'] = ind_data['sample_ids'].apply(lambda x: ';'.join(x[2:-2].split("', '")))
 
     else:
-        # For phewas data
+        # For phewas data, including some cleaning, could be done somewhere else.
         phewas_code = '253'
 
-        ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/phewas_results/combinations/SNP_combinations_phewas_4_5.tsv', index_col=0)
+        ind_data = pd.read_table(input_file, index_col=0)
         ind_data.rename(columns={'phewas_code': 'sample_ids'}, inplace=True)
         ind_data['sample_ids'] = ind_data['sample_ids'].apply(str)
         ind_data = ind_data[ind_data['sample_ids'].map(lambda x: x.split('.')[0] == phewas_code)]
         ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: x.split(';'))
 
-
-    # Filter out essential genes:
-    essential = True
-
     for tissue in tissue_list:
 
         # Load models. Multiple instances are needed to do both regular and task FBA.
-        model_list = constrain_model('C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/GTEx/{0}.xml'.format(tissue), ALLMETSIN_OUT=False)
+        model_list = constrain_model('C:/Users/Sigve/Genome_Data/Human1/Human1_GEM/GTEx/{0}.xml'.format(tissue), ALLMETSIN_OUT=True)
+
+        #### Essential Gene Test
+        #ind_data = pd.read_table(
+         #   'C:/Users/Sigve/Genome_Data/results/model_tests/essential_genes/{0}_essential.tsv'.format(tissue),
+         #   index_col=0).reset_index()
+        #ind_data.rename(columns={'index': 'sample_ids'}, inplace=True)
+        #ind_data['gene_ids'] = ind_data['gene_ids'].apply(lambda x: [x])
+        #### Remove After
+
 
         # If inputs should be filtered by essential genes.
         if essential:
             # Reads in non essential genes list.
             # This list includes genes not essential for tasks, otherwise cobra get essential can be used for comparison.
-            genes = pd.read_table('C:/Users/Sigve/Genome_Data/results/model_tests/essential_genes/{0}_non_essential.tsv'.format(tissue), index_col=0)['gene_ids'].tolist()
+            genes = pd.read_table(path + 'model_tests/essential_genes/{0}_non_essential.tsv'.format(tissue), index_col=0)['gene_ids'].tolist()
 
         else:
             # Use all genes instead; needed because not all tissues have the same genes.
@@ -68,13 +80,13 @@ def main():
         results.sort_index(inplace=True)
 
         # Actual FBA
-        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores=12)
+        results = parallelize_dataframe(results, partial(knockout_FBA_w_tasks, task_list, model_list), n_cores)
 
         results['gene_ids'] = results['gene_ids'].apply(';'.join)
         results['tasks_results'] = results['tasks_results'].apply(lambda x: x if not all(x) else ['ALL PASS'])
 
         results.reset_index(inplace=True, drop=True)
-        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/start_stop/start_stop_het/full_tasks/start_stop_het_{0}.tsv'.format(tissue), sep='\t')
+        results[['sample_ids', 'gene_ids', 'solution', 'tasks_results']].to_csv(path_or_buf=path + 'ind_results/start_stop/start_stop_hom/full_tasks/ind_{0}_full.tsv'.format(tissue), sep='\t')
 
     end_time = time.time()
 

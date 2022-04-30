@@ -8,10 +8,11 @@ single entry. For larger number of SNPs, combinations are virtually guaranteed t
 def main():
 
     ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/all_missense_ind_data.tsv', index_col=0)
-    output_file = 'C:/Users/Sigve/Genome_Data/results/ind_combinations/start_stop_comb_het.tsv'
+    output_file = 'C:/Users/Sigve/Genome_Data/results/ind_combinations/all_missense_comb_het.tsv'
 
     # Can filter here (currently filtered fir SNPs affecting start/stop codons).
-    if True:
+    filter = False
+    if filter:
         ind_data = ind_data[ind_data['amino_acid_change'].str.contains('_') |
                             (ind_data['amino_acid_pos'] == 1)].reset_index(drop=True)
 

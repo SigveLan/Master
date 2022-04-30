@@ -1,14 +1,11 @@
 
-import itertools
 import pandas as pd
-import cobra.flux_analysis
-from cobra import Metabolite
-import time
-import numpy as np
+
 from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA, knockout_FBA_w_tasks, knockout_FBA_simple
 
 from src.FBA_scripts.met_task_functions import constrain_model, read_tasks
 
+"""Simple script used to filter metabolic tasks on whether they pass or not."""
 
 tissues = ['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'kidney', 'liver', 'nerve', 'lung', 'skin']
 
