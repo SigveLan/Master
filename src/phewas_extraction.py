@@ -1,5 +1,8 @@
 import pandas as pd
-from depricated.phewas_mp_functions import phewas_parallelization, combination_generation
+from src.phewas_mp_functions import phewas_parallelization, combination_generation
+
+"""A script that uses already filtered SNPs and produced phecode spceific combinations for them. 
+Remove inputs below to select SNPs based on location. Combination size is set in 'combination_generation' function."""
 
 
 def main():
@@ -26,6 +29,8 @@ def main():
 
     phewas = pd.read_csv('C:/Users/Sigve/Genome_Data/SNP_data/phewas/phewas-catalog.csv')
     phewas['phewas code'] = phewas['phewas code'].apply(str)
+
+    # Generate combinations for only a specific phecode, recommended for larger combinations.
     phewas = phewas[phewas['phewas code'].str.contains('290.\d*')]
 
     snps['phewas_codes'] = snps['variant_name'].apply(lambda x: set(phewas[phewas['snp'] == x]['phewas code'].tolist()))

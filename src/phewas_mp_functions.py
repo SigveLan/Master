@@ -12,6 +12,7 @@ def combination_generation(temp_dfs: np.ndarray) -> pd.DataFrame:
         code = temp_df['phewas_code'].iloc[0]
         SNP_ids = temp_df['variant_name'].tolist()
         combs = []
+        # Set Range, could be input
         for L in range(5, 6 + 1):
             for subset in itertools.combinations(SNP_ids, L):
                 combs.append(subset)
