@@ -60,7 +60,7 @@ def get_met_ids(model_list: list, task: pd.Series) -> list:
     return [met_ids, model_num]
 
 
-def constrain_model(model_path: str, ALLMETSIN_IN:bool = False, ALLMETSIN_OUT:bool = False) -> list:
+def constrain_model(model_path: str, ALLMETSIN_IN: bool = False, ALLMETSIN_OUT: bool = False) -> list:
     """Produces models for FBA, including models for task runs.
     ALLMETSIN_IN/OUT is for whether ALLMETSIN is used in upper or lower constraints"""
 

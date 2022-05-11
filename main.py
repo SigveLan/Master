@@ -20,7 +20,7 @@ def main():
                          path + 'results/SNPs_non_coding.tsv',
                          path + 'results/SNPs_transcript_non_coding.tsv',
                          path + 'results/SNPs_missense.tsv',
-                         path + 'results/SNPs_synonymous.tsv']
+                         path + 'resultsSNPs_synonymous.tsv']
 
     # Settings
     write_results_to_file = True

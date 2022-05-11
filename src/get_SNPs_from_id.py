@@ -4,19 +4,21 @@ import pandas as pd
 
 
 def main():
-
+    file = 'C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het_inc_ess/selected_results/{0}.tsv'
     ind_data = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_combinations/all_missense_ind_data.tsv', index_col=0)
     ind_data['gene_id'] = ind_data['gene_id'].apply(lambda x: x.split('.')[0])
 
-    tissue_list = ['liver'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
+    tissue_list = ['brain'] #['pancreas', 'spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung']
 
     tissue_list.sort()
 
     for tissue in tissue_list:
 
-        gene = 'ENSG00000105220'
+        gene = 'ENSG00000137992'
 
-        fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/full_tasks/selected_results/{0}.tsv'.format(gene), index_col=0)
+        fba_filter_res = pd.read_table(file.format(gene), index_col=0)
+        #fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/all_homozygote/subcombs/HG02078_brain_res.txt', index_col=0)
+
 
         fba_filter_res['sample_ids'] = fba_filter_res['sample_ids'].apply(lambda x: x.split(';'))
         fba_filter_res['gene_ids'].iat[0] = ''
@@ -42,7 +44,7 @@ def main():
             res_list.append(res_dict)
 
         fba_filter_res['variants'] = pd.Series(res_list)
-        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf='C:/Users/Sigve/Genome_Data/results/ind_results/filtered/start_stop_het/full_tasks/selected_results/{0}.tsv'.format(gene), sep='\t')
+        fba_filter_res[['sample_ids', 'solution', 'tasks_results', 'variants']].to_csv(path_or_buf=file.format(gene), sep='\t')
 
 
 if __name__ == '__main__':
