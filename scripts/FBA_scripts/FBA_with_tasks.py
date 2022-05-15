@@ -4,7 +4,7 @@ import pandas as pd
 from functools import partial
 
 from src.mp_functions import parallelize_dataframe, knockout_FBA_w_tasks
-from src.FBA_scripts.met_task_functions import read_tasks, constrain_model
+from src.task_functions import read_tasks, constrain_model
 
 """Script for FBA with tasks. Be sure to change file in- and output names, as well as core count!"""
 
@@ -16,6 +16,8 @@ def main():
     tissue_list = ['skin'] #['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'blood', 'brain', 'heart', 'kidney', 'liver', 'muscle', 'nerve', 'lung', 'skin', ]
     tissue_list.sort()
 
+    ##########
+    # Settings
     n_cores = 12
     path = 'C:/Users/Sigve/Genome_Data/results/'
     #'ind_combinations/start_stop_comb_het.tsv'

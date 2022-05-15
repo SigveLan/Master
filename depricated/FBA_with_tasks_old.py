@@ -3,7 +3,7 @@ import pandas as pd
 from functools import partial
 
 from src.mp_functions import combinations_subset, parallelize_dataframe, knockout_FBA_w_tasks
-from src.FBA_scripts.met_task_functions import read_tasks, constrain_model
+from src.task_functions import read_tasks, constrain_model
 
 """Script for FBA with tasks. Be sure to change file in-/out-put names!"""
 

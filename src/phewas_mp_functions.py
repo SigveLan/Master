@@ -3,6 +3,8 @@ import numpy as np
 import itertools
 from multiprocessing import Pool, cpu_count
 
+"""Multi processing for creating large files with PheWAS combinations."""
+
 
 def combination_generation(temp_dfs: np.ndarray) -> pd.DataFrame:
 

@@ -10,7 +10,9 @@ from functools import partial
 
 def main():
 
-    """This main function only pertains to the SNP filtering part of the pipeline."""
+    """This main function only pertains to the SNP filtering part of the pipeline.
+    It takes in a list of SNPs and produces several files, dividing the SNPs depending on location and effect.
+    There is also support for multiprocessing which """
 
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'
@@ -22,9 +24,11 @@ def main():
                          path + 'results/SNPs_missense.tsv',
                          path + 'resultsSNPs_synonymous.tsv']
 
+    ##########
     # Settings
     write_results_to_file = True
     n_cores = 8
+    ###########
 
     start_time = time.time()
 

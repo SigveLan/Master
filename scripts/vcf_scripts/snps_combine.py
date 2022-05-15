@@ -1,7 +1,7 @@
 import pandas as pd
 
 """This script reads in the results from 'vcf_reader' and combines the SNPs into single file.
-Will work with multiple files for each chromosome"""
+Only necessary if multiple files are produced. Will work with multiple files for each chromosome."""
 
 
 def main():

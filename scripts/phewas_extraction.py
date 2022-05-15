@@ -1,7 +1,7 @@
 import pandas as pd
 from src.phewas_mp_functions import phewas_parallelization, combination_generation
 
-"""A script that uses already filtered SNPs and produced phecode spceific combinations for them. 
+"""A script that uses already filtered SNPs and produced phecode specific combinations for them. 
 Remove inputs below to select SNPs based on location. Combination size is set in 'combination_generation' function."""
 
 

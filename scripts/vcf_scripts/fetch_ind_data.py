@@ -4,7 +4,7 @@ import pandas as pd
 import time
 
 """Fetches data for individuals based on input SNPs. Produces big files, memory intensive, depending on input. 
-NB: pysam is not available for windows."""
+This data will then be used for combination production and determination of hetero-/homo-zygotes. NB: pysam is not available for windows."""
 
 start_time = time.time()
 chroms = [str(i) for i in range(1, 23)] + ['X']

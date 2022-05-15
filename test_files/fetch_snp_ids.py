@@ -25,7 +25,7 @@ print(*result, sep=',')
 #with open('C:/Users/Sigve/Genome_Data/SNP_data/1000_genomes/result_chrom_22_regions.txt', 'w') as text_file:
     #text_file.write(','.join(result))
 
-Entrez.email = 'sigve.landa@outlook.com'
+Entrez.email = ''
 handle = Entrez.esearch(db='snp', term=result[0])
 records = Entrez.read(handle)
 for record in records:
