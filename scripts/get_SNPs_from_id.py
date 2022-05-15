@@ -14,9 +14,12 @@ def main():
 
     for tissue in tissue_list:
 
-        gene = 'ENSG00000137992'
+        # Can be done in different ways. Either for a specific gene or whole results.
+        # Can also do multiple tissues at once if input is in different tissue files
 
+        gene = 'ENSG00000137992'
         fba_filter_res = pd.read_table(file.format(gene), index_col=0)
+
         #fba_filter_res = pd.read_table('C:/Users/Sigve/Genome_Data/results/ind_results/filtered/all_homozygote/subcombs/HG02078_brain_res.txt', index_col=0)
 
 
