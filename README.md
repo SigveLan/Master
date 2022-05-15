@@ -59,16 +59,21 @@ A repository for all code related to my masters project
     - Select which model tissues to use.
     - Select either to filter for (non)essential genes or to only filter for genes in model. 
       Nonessential genes that have been task filtered will need to be
-      prepared beforehand, preferably with MATLAB as it is faster. Can also use 'cobra.analysis.find_essential_genes' to
+      prepared beforehand. They are also evailable in the supplementary data for models used in the project. Can also use 'cobra.analysis.find_essential_genes' to
       get genes that produces zero as solution when knocked out. This will however not get genes essential to tasks.
       - The filter here is necessary because the different tissue models have different genes in them. Genes not in the
-        model will be ignored.
+        model will essentiallt be ignored for that input.
   
 
 - Interesting results can be filtered out with filter_results.py
   and SNP ids can be retrieved using 'get_SNPs_from_id.py'
 - Filtering out samples with containing specific genes in their combination is also possible with 
   get_sample_from_genes.py
+
+
+
+####Additional Task Creation
+
 
 
 
