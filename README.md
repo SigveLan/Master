@@ -43,9 +43,8 @@ This is a repository for all code related to my master's project
 - Using the exon data to filter out SNPs for vcf files: vcf_reader.py
     - Requires Linux
 
-- Combine all SNPs to single file: snps_combine.py
-    - Only necessary if multiple files was produced from vcf_reader.py
-    - 
+- Combine all SNP files to single file: snps_combine.py
+
 - Running the main SNP filter: main.py
 - Extracting individual data for all missense SNPs (or other SNPs, depending): fetch_ind_data.py
     - Requires Linux
@@ -130,5 +129,7 @@ This is a repository for all code related to my master's project
 - Use the scripts/FBA_scripts/model.explore.ipynb
 - In this case the FVA test uses the generic Human1 model.
 - A long list of constraints will be added to the model
-- Then FVA is run with and without HIBCH knockout.
-- To see what the reactions are, visit: https://metabolicatlas.org/explore/Human-GEM/gem-browser
+- Then FVA is run with and withouth HIBCH knockout.
+- To see what the reactoins are, visit: https://metabolicatlas.org/explore/Human-GEM/gem-browser
+
+
