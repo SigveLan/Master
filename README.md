@@ -20,7 +20,7 @@ This is a repository for all code related to my master's project
     ENSE00003487616|1761952|1762035|2|2|1761952|1762035|-1
     
     
-- Filter the genome data using exon_filter_model using the general metabolic model not tissue specific model. 
+- Filter the genome data using exon_filter_model.py using the general metabolic model not tissue specific model. 
   This removes all data for genes not in the model as those are not useful anyways.
   
 #### Filter SNPs using individual data:
@@ -95,9 +95,10 @@ This is a repository for all code related to my master's project
       - The filter here is necessary because the different tissue models have different genes in them. Genes not in the
         model will essentially be ignored for that input.
   
+#### Result Processing
+- Result processign varies slightly depending on inputs used.
 
-- Interesting results can be filtered out with filter_results.py
-
+- Interesting results for any output file can be filtered out with filter_results.py
 
 - Sub combinations can be created and run with subcombinations_gen_and_FBA.ipynb
   - Selected gene combination will have to pe copy/pasted in
@@ -106,6 +107,8 @@ This is a repository for all code related to my master's project
 
 - Filtering out samples which contain specific genes in their combination is also possible with 
   get_sample_from_genes.py
+  
+- Visually clean task results outputs are generated with scripts.results_clean_task_outputs.py
 
 #### Task Functions
 - All functions used to prepare the internal task list from file, and models for task usage are located in src.task_functions.py
@@ -120,7 +123,7 @@ This is a repository for all code related to my master's project
 - Any task that fails for a given tissue is removed.
 
 
-#### FVA / Model explore
+#### FVA and Model Exploration
 - Use the scripts/FBA_scripts/model.explore.ipynb
 
 
