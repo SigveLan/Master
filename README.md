@@ -107,9 +107,17 @@ This is a repository for all code related to my master's project
 - Filtering out samples which contain specific genes in their combination is also possible with 
   get_sample_from_genes.py
 
+#### Task Functions
+- All functions used to prepare the internal task list from file, and models for task usage are located in src.task_functions.py
+- When FBA is done with tasks a special FBA function is used. This functions applies each task to the appropriate model then performs FBA. This function is located in src.mp_function, function: knockout_FBA_w_tasks
   
-#### Additional Task Creation
-- Use the scripts/full_task_lists_create.ipynb under scripts.
+#### Additional Task Lists Creation
+- Use the scripts/full_task_lists_create.ipynb recreate the process of generating additional tasks. Already created lists are also in the supplementary data.
+- One task, 'Storage of Glucose in Glycogen' should be removed as it has properties not supported.
+- The original full task list is read in and excess columns are removed.
+- Essential tasks are filtered away as they are already listed in essential tasks.
+- Instructions are listed in the file for removal of tasks with missing metabolites.
+- Any task that fails for a given tissue is removed.
 
 
 #### FVA / Model explore
