@@ -7,7 +7,7 @@ This is a repository for all code related to my master's project
 # Pipeline Flow
 
 ####Prepare genome data
-- Download data from Ensembl with the biomart tool, using the template as given:<br /><br />
+- Download data from Ensembl with the biomart tool, using the template as given or use data from the supplementary files:<br /><br />
 
     - Header setup:<br />
     
