@@ -43,9 +43,8 @@ This is a repository for all code related to my master's project
 - Using the exon data to filter out SNPs for vcf files: vcf_reader.py
     - Requires Linux
 
-- Combine all SNPs to single file: snps_combine.py
-    - Only necessary if multiple files was produced from vcf_reader.py
-    - 
+- Combine all SNP files to single file: snps_combine.py
+
 - Running the main SNP filter: main.py
 - Extracting individual data for all missense SNPs (or other SNPs, depending): fetch_ind_data.py
     - Requires Linux
