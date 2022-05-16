@@ -1,12 +1,12 @@
 # Human Phenotype Prediction Through use of Variant Data in Metabolic Modeling
-##A Master's Project by Sigve Strand Landa
+## A Master's Project by Sigve Strand Landa
 
 This is a repository for all code related to my master's project
 
 
 # Pipeline Flow
 
-####Prepare genome data
+#### Prepare genome data
 - Download data from Ensembl with the biomart tool, using the template as given or use data from the supplementary files:<br /><br />
 
     - Header setup:<br />
@@ -23,26 +23,53 @@ This is a repository for all code related to my master's project
 - Filter the genome data using exon_filter_model using the general metabolic model not tissue specific model. 
   This removes all data for genes not in the model as those are not useful anyways.
   
-####Filter SNPs using individual data:
+#### Filter SNPs using individual data:
 
 
+
+
+- This data will then just be a list of SNPs
+
+#### Running the SNP filter
+
+- Tho run the main SNP filter: main_filter.py
+    - Input is a list of SNPs
+    - For this to work the input will need to be in a certain format.
+    - Multiprocessing is available for the filer, whic hcan be useful for large inpput files.
+    - There are a total of five output files:
+        - noncoding SNPs
+        - SNPs in transcript - noncoding
+        - SNPs in coding part
+            - The SNPs in this part is further scrutinized into:
+            - synonymous SNPs: SNPs that do not produce amino acid change
+            - missense SNPs: SNPs that do produce amino acid change 
+
+
+##### VCF extraction
 - Using the exon data to filter out SNPs for vcf files: vcf_reader.py
     - Requires Linux
 
 - Combine all SNPs to single file: snps_combine.py
+    - Only necessary if multiple files was produced from vcf_reader.py
+    - 
 - Running the main SNP filter: main.py
 - Extracting individual data for all missense SNPs (or other SNPs, depending): fetch_ind_data.py
     - Requires Linux
 
 - Produce combinations: individual_combinations.py
 
-####Filter SNPs using general SNP data. 
+#### PheWAS extraction
+- A clean list of SNPs was produced throug extraction from the catalogue. Both files are found in the supplementary data
+- Then combinations are generated based on phecodes and all given SNPs associated for the phecode with phewas_extraction.py
+    - There is the option of using multiple SNP filter outputs, not just missense SNPs
+    - Adding a filter for specific SNPs is possible, but will require some small changes.
+    - Combination changes can be changed in srs.phewas_mp_functions.
+        - Multiprocessing was added for large combinations
+        - If large combinations, and there are many unique SNPs, is to be produced, a phecode filter should be added to phewas_extraction.py
+    - The output of phewas_extraction.py can the nbe used for knockout FBA.
 
-- This data will then just be a list of SNPs
 
-- Then run the main SNP filter: main.py
-    - You might need to clean up the SNP data a bit for this to work,
-      making sure the columns have correct labels and such
+#### Combination preparation using general SNP data. 
 
 - The results will then need to be filtered for affected genes using test_files.SNP_result_processing.py
     - This gets all genes that have been affected by at least one SNP
@@ -56,7 +83,7 @@ This is a repository for all code related to my master's project
 
 - Combinations can then be used to run FBA as above, with results being of the same format.
 
-####FBA
+#### FBA
 - scripts/FBA_scripts
 
 - Run FBA with tasks using FBA_with_tasks.py
@@ -81,11 +108,11 @@ This is a repository for all code related to my master's project
   get_sample_from_genes.py
 
   
-####Additional Task Creation
+#### Additional Task Creation
 - Use the scripts/full_task_lists_create.ipynb under scripts.
 
 
-####FVA / Model explore
+#### FVA / Model explore
 - Use the scripts/FBA_scripts/model.explore.ipynb
 
 
