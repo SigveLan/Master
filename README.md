@@ -23,16 +23,10 @@ This is a repository for all code related to my master's project
 - Filter the genome data using exon_filter_model.py using the general metabolic model not tissue specific model. 
   This removes all data for genes not in the model as those are not useful anyways.
   
-#### Filter SNPs using individual data:
-
-
-
-
-- This data will then just be a list of SNPs
 
 #### Running the SNP filter
 
-- Tho run the main SNP filter: main_filter.py
+- To run the main SNP filter: main_filter.py
     - Input is a list of SNPs
     - For this to work the input will need to be in a certain format.
     - Multiprocessing is available for the filer, whic hcan be useful for large inpput files.
@@ -71,6 +65,8 @@ This is a repository for all code related to my master's project
 
 #### Combination preparation using general SNP data. 
 
+- Run the SNP filter with the list of SNPs
+
 - The results will then need to be filtered for affected genes using test_files.SNP_result_processing.py
     - This gets all genes that have been affected by at least one SNP
 - The affected genes are then used to produce combinations using combination_generator.py
@@ -81,9 +77,10 @@ This is a repository for all code related to my master's project
         - Random combinations, which will be a set number of combinations within a range of sizes,
           ex: 200 combinations with sizes ranging from 3 to 6.
 
-- Combinations can then be used to run FBA as above, with results being of the same format.
+- Combinations can then be used to run FBA, with results being of the same format.
 
 #### FBA
+
 - scripts/FBA_scripts
 
 - Run FBA with tasks using FBA_with_tasks.py
@@ -94,6 +91,8 @@ This is a repository for all code related to my master's project
       get genes that produces zero as solution when knocked out. This will however not get genes essential to tasks.
       - The filter here is necessary because the different tissue models have different genes in them. Genes not in the
         model will essentially be ignored for that input.
+        
+- If tasks are not used, FBA_simple.py can be utilized for FBA instead. 
   
 #### Result Processing
 - Result processign varies slightly depending on inputs used.
@@ -112,6 +111,7 @@ This is a repository for all code related to my master's project
 
 #### Task Functions
 - All functions used to prepare the internal task list from file, and models for task usage are located in src.task_functions.py
+
 - When FBA is done with tasks a special FBA function is used. This functions applies each task to the appropriate model then performs FBA. This function is located in src.mp_function, function: knockout_FBA_w_tasks
   
 #### Additional Task Lists Creation
@@ -121,9 +121,14 @@ This is a repository for all code related to my master's project
 - Essential tasks are filtered away as they are already listed in essential tasks.
 - Instructions are listed in the file for removal of tasks with missing metabolites.
 - Any task that fails for a given tissue is removed.
+- All tasks that passed for a tissue is then written to file.
 
 
 #### FVA and Model Exploration
 - Use the scripts/FBA_scripts/model.explore.ipynb
+- In this case the FVA test uses the generic Human1 model.
+- A long list of constraints will be added to the model
+- Then FVA is run with and withouth HIBCH knockout.
+- To see what the reactoins are, visit: https://metabolicatlas.org/explore/Human-GEM/gem-browser
 
 
