@@ -12,7 +12,9 @@ def main():
 
     """This main function only pertains to the SNP filtering part of the pipeline.
     It takes in a list of SNPs and produces several files, dividing the SNPs depending on location and effect.
-    There is also support for multiprocessing which """
+    Two functions are used: SNP_filter.py and SNP_effect_eval.py
+    There is  support for multiprocessing for increased efficiency on the SNP_filter as this can take considerable time
+     with larger files."""
 
     # File paths/names
     path = 'C:/Users/Sigve/Genome_Data/'

@@ -15,6 +15,10 @@ def main():
     snp_categories = ['non_coding', 'transcript_non_coding', 'missense', 'synonymous']
 
     snps = pd.DataFrame(columns=['variant_name', 'chrom', 'gene_name', 'gene_id'])
+
+
+
+
     category_count = 0
 
     for file in input_file_names:
@@ -22,7 +26,11 @@ def main():
         temp_df = temp_df[['variant_name', 'chrom', 'gene_name', 'gene_id']]
         temp_df['category'] = snp_categories[category_count]
         category_count += 1
+
         snps = pd.concat([snps, temp_df])
+
+    # Filter SNPs here, only works with missense SNPs, must also change input column fields.
+    #snps = snps[snps['amino_acid_change'].str.contains('_') | (snps['amino_acid_pos'] == 1)].reset_index(drop=True)
 
     snps.drop_duplicates(inplace=True)
     snps.reset_index(drop=True, inplace=True)
@@ -30,7 +38,8 @@ def main():
     phewas = pd.read_csv('C:/Users/Sigve/Genome_Data/SNP_data/phewas/phewas-catalog.csv')
     phewas['phewas code'] = phewas['phewas code'].apply(str)
 
-    # Generate combinations for only a specific phecode, recommended for larger combinations.
+    # Generate combinations for only a specific phecode, recommended for larger combinations with many unique SNPs.
+    # Otherwise comment out.
     phewas = phewas[phewas['phewas code'].str.contains('290.\d*')]
 
     snps['phewas_codes'] = snps['variant_name'].apply(lambda x: set(phewas[phewas['snp'] == x]['phewas code'].tolist()))

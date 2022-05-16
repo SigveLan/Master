@@ -27,6 +27,8 @@ for chrom in chroms:
     n = 1
     result_dict = {}
     _exons = exons[exons['chrom'] == chrom]
+
+    # Could add en extended range upstream and/or downstream of the gene.
     regions = zip(_exons['gene_start'].unique().tolist(), _exons['gene_end'].unique().tolist())
 
     vcf_in = TabixFile(

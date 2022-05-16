@@ -5,7 +5,6 @@ import pandas as pd
 
 """
 A simple script for producing percentages of essential genes in the different tissue models.
-
 """
 path = 'C:/Users/Sigve/Genome_Data/results/'
 
