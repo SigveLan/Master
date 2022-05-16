@@ -1,5 +1,6 @@
-# Master
-A repository for all code related to my masters project
+# Master's Project: Human Phenotype Prediction Through use of Variant Data in Metabolic Modeling
+A repository for all code related to my master's project: 
+
 
 
 # Pipeline Flow
@@ -55,25 +56,35 @@ A repository for all code related to my masters project
 - Combinations can then be used to run FBA as above, with results being of the same format.
 
 ####FBA
+- scripts/FBA_scripts
+
 - Run FBA with tasks using FBA_with_tasks.py
     - Select which model tissues to use.
     - Select either to filter for (non)essential genes or to only filter for genes in model. 
       Nonessential genes that have been task filtered will need to be
-      prepared beforehand. They are also evailable in the supplementary data for models used in the project. Can also use 'cobra.analysis.find_essential_genes' to
+      prepared beforehand. They are also available in the supplementary data for models used in the project. Can also use 'cobra.analysis.find_essential_genes' to
       get genes that produces zero as solution when knocked out. This will however not get genes essential to tasks.
       - The filter here is necessary because the different tissue models have different genes in them. Genes not in the
-        model will essentiallt be ignored for that input.
+        model will essentially be ignored for that input.
   
 
 - Interesting results can be filtered out with filter_results.py
-  and SNP ids can be retrieved using 'get_SNPs_from_id.py'
-- Filtering out samples with containing specific genes in their combination is also possible with 
+
+
+- Sub combinations can be created and run with subcombinations_gen_and_FBA.ipynb
+  - Selected gene combination will have to pe copy/pasted in
+
+- SNP ids can be retrieved using 'get_SNPs_from_id.py'
+
+- Filtering out samples which contain specific genes in their combination is also possible with 
   get_sample_from_genes.py
 
-
-
+  
 ####Additional Task Creation
+- Use the scripts/full_task_lists_create.ipynb under scripts.
 
 
+####FVA / Model explore
+- Use the scripts/FBA_scripts/model.explore.ipynb
 
 
