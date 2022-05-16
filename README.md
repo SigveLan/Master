@@ -39,7 +39,7 @@ This is a repository for all code related to my master's project
             - missense SNPs: SNPs that do produce amino acid change 
 
 
-##### VCF extraction
+#### VCF extraction
 - Using the exon data to filter out SNPs for vcf files: vcf_reader.py
     - Requires Linux
 
@@ -82,6 +82,8 @@ This is a repository for all code related to my master's project
 #### FBA
 
 - scripts/FBA_scripts
+- Load any file with gene combinations
+- If PheWAS data is used, select the phecode to run.
 
 - Run FBA with tasks using FBA_with_tasks.py
     - Select which model tissues to use.
