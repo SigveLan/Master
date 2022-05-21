@@ -5,7 +5,7 @@ from src.mp_functions import knockout_FBA_w_tasks
 
 from src.task_functions import constrain_model, read_tasks
 
-"""Simple script used to filter metabolic tasks on whether they pass or not."""
+"""Simple script used to filter metabolic tasks on whether they pass in a tissue or not."""
 
 tissues = ['spleen', 'adipose_tissue', 'adrenal_gland', 'pituitary', 'thyroid', 'kidney', 'liver', 'nerve', 'lung', 'skin']
 
