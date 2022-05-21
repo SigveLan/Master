@@ -1,5 +1,5 @@
 # Human Phenotype Prediction Through use of Variant Data in Metabolic Modeling
-## A Master's Project by Sigve Strand Landa
+## Master's Project by Sigve Strand Landa
 
 This is a repository for all code used in my master's project.
 Included is a list of data sources as well as simple instructions on how to use the code.
