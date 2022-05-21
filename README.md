@@ -15,7 +15,7 @@ Included is a list of data sources as well as simple instructions on how to use 
 - 1000 Genomes Project:
     https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/
 
--PheWAS Data:
+- PheWAS Data:
     https://phewascatalog.org/phewas
     
 
@@ -45,7 +45,7 @@ Included is a list of data sources as well as simple instructions on how to use 
 - To run the main SNP filter: main_filter.py
 - Input is a list of SNPs with a certain format
   
-- Multiprocessing is available for the filer, which can be useful for large input files.
+- Multiprocessing is available for the filer, which can be useful for larger input files.
 
 - There are a total of five output files:
     - noncoding SNPs
@@ -65,7 +65,7 @@ Included is a list of data sources as well as simple instructions on how to use 
 
 - Combine all SNP files to single file: snps_combine.py
 
-- Running the main SNP filter: main.py
+- Running the main SNP filter as above.
 - Extracting individual data for all missense SNPs (or other SNPs, depending): fetch_ind_data.py
     - Requires Linux
 
