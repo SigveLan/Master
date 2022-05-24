@@ -18,6 +18,9 @@ Included is a list of data sources as well as simple instructions on how to use 
 - PheWAS Data:
     https://phewascatalog.org/phewas
     
+- Supplementary Data
+    https://figshare.com/articles/dataset/supplementary_zip/19842646
+    
 
 ## Pipeline
 
