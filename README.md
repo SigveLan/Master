@@ -4,6 +4,9 @@
 This is a repository for all code used in my master's project.
 Included is a list of data sources as well as simple instructions on how to use the code.
 
+Link to Publication:
+https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/3002900
+
 ## Data Sources
 
 - Genome Data:
