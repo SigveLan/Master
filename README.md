@@ -49,9 +49,12 @@ https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/3002900
 #### Running the SNP filter
 
 - To run the main SNP filter: main_filter.py
-- Input is a list of SNPs with a certain format
+- Input is a list of SNPs with a certain format, example:<br />
+
+    >snp_id	 chr	 pos	 var <br />
+    >1:1173931	1	1173931	 G/A
   
-- Multiprocessing is available for the filer, which can be useful for larger input files.
+- Multiprocessing is available for the filter, which can be useful for larger input files.
 
 - There are a total of five output files:
     - noncoding SNPs
